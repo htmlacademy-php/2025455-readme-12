@@ -21,6 +21,20 @@ $posts = [
         'avatar' => 'userpic.jpg',
     ],
     [
+        'title' => '_Новости F1_',
+        'type' => 'post-text',
+        'value' => 'Mercedes заявили, что хотели бы быстрее увидеть машину на тестах. Главной причиной является "проверка работоспособности двигателя".
+Переход с топлива E5 на топливо E10 может стать одним из ключевых параметров успеха в 2022 году,
+а именно способность каждой команды компенсировать потери мощности своего мотора.
+Кроме того, Mercedes подтвердили, что со значительными изменениями аэродинамики изменится и стиль вождения у гонщиков, им придется иначе проходить повороты.
+Глава HPP Mercedes Хайвел Томас заявил, что "запросы к пилотам будут совсем другие,
+и нужно как можно быстрее проверить симуляции в реальных условиях". И еще один важный момент - производительность двигателя будет "заморожена" до 2025 года включительно, пока не появятся новые двигатели.
+Все команды волнуются, потому что ошибки перед стартом сезона 2022 могут повлечь за собой цепь неудачных лет.
+Новое топливо, новая аэродинамика, "заморозка" силовых агрегатов и размещение мотора в структуре болида может стать для кого-то невыполнимым вызовом...',
+        'author' => 'Владик test',
+        'avatar' => 'userpic.jpg',
+    ],
+    [
         'title' => 'Наконец, обработал фотки!',
         'type' => 'post-photo',
         'value' => 'rock-medium.jpg',
@@ -42,6 +56,34 @@ $posts = [
         'avatar' => 'userpic.jpg',
     ]
 ];
+
+//Функция, обрезающая содержимое текстового контента по заданному кол-ву симловов
+function text_cut( $text, $quantity = 300) {
+
+    $start_length = iconv_strlen($text);
+    $process_length = 0;
+    $count = 0;
+
+    if ($start_length <= $quantity) {
+        $new_text = $text;
+    }
+    else {
+        $words = explode(" ",  $text);
+
+        while ($process_length <= $quantity) {
+            $word_length = iconv_strlen($words[$count]);
+            $process_length = $process_length + $word_length + 1;//+ 1 учитывает символ пробела после каждого слова
+            $count = $count + 1;
+        }
+
+        $count = $count - 2 + 1;
+        $new_words = array_slice($words, 0, $count, false);
+        $new_text = implode(" ", $new_words);
+        $new_text .= "...";
+    }
+
+    return $new_text;
+}
 ?>
 <!DOCTYPE html>
 <html lang="ru">
@@ -259,7 +301,11 @@ $posts = [
                             <cite>Неизвестный Автор</cite>
                         </blockquote>
                     <?php elseif ($post['type'] === 'post-text'): ?>
-                        <p><?= $post['value'] ?></p>
+                        <?php $final_text = text_cut($post['value'], 200); ?>
+                        <p><?= $final_text ?></p>
+                        <?php if ($final_text !== $post['value']):?>
+                            <a class="post-text__more-link" href="#">Читать далее</a>
+                        <?php endif; ?>
                     <?php elseif ($post['type'] === 'post-photo'): ?>
                         <div class="post-photo__image-wrapper">
                             <img src="img/<?= $post['value'] ?>" alt="Фото от пользователя" width="360" height="240">
