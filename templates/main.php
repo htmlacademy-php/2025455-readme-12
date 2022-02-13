@@ -1,3 +1,8 @@
+<?php
+/**
+ * @var array $posts
+ */
+?>
 <div class="container">
         <h1 class="page__title page__title--popular">Популярное</h1>
     </div>
@@ -84,7 +89,7 @@
             </div>
         </div>
         <div class="popular__posts">
-            <?php foreach ($posts as $post): ?>
+            <?php foreach ($posts as $index=>$post): ?>
                 <article class="popular__post post <?= $post['type'] ?>">
                     <header class="post__header">
                         <h2><!--здесь заголовок--><?= htmlspecialchars($post['title']) ?></h2>
@@ -147,7 +152,8 @@
                                 </div>
                                 <div class="post__info">
                                     <b class="post__author-name"><!--здесь имя пользоателя--><?= htmlspecialchars($post['author']) ?></b>
-                                    <time class="post__time" datetime="">дата</time>
+                                    <?php $date_array = post_date($index); ?>
+                                    <time class="post__time" datetime="<?=$date_array[0]?>" title="<?=$date_array[1]?>"><?=$date_array[2]?></time>
                                 </div>
                             </a>
                         </div>

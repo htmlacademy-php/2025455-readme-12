@@ -1,5 +1,6 @@
 <?php
 require_once 'helpers.php';
+date_default_timezone_set('Europe/Moscow');
 $is_auth = rand(0, 1);
 
 $user_name = 'Семенов Никита'; // укажите здесь ваше имя
@@ -83,6 +84,47 @@ function text_cut( $text, $quantity = 300) {
     }
 
     return $new_text;
+}
+
+function post_date($test_index) {
+
+    $gen_date_str = generate_random_date($test_index); //string
+    $gen_date = date_create($gen_date_str); //datetime object
+    $gen_date_format_str = date_format($gen_date, 'Y-m-d H:i'); //string
+    $cur_date = date_create('now'); //datetime object
+
+    $diff = date_diff($gen_date, $cur_date);   //datetime object
+    //string, could be used like int
+    $diff_count_i = date_interval_format($diff, "%i");
+    $diff_count_h = date_interval_format($diff, "%h");
+    $diff_count_d = date_interval_format($diff, "%d");
+    $diff_count_m = date_interval_format($diff, "%m");
+    $rel_date = 0;
+
+        if ($diff_count_i > 0 && $diff_count_i  < 60): {
+            $rel_date = $diff_count_i . get_noun_plural_form($diff_count_i, ' минута ', ' минуты ', ' минут ') . 'назад';
+        }
+        elseif ($diff_count_h >= 1 && $diff_count_h  < 24): {
+            $rel_date = $diff_count_h . get_noun_plural_form($diff_count_h, ' час ', ' часа ', ' часов ') . 'назад';
+        }
+        elseif ($diff_count_d >= 1 && $diff_count_d < 7): {
+            $rel_date = $diff_count_d . get_noun_plural_form($diff_count_d, ' день ', ' дня ', ' дней ') . 'назад';
+        }
+        elseif ($diff_count_d >= 7 && $diff_count_d < 30): {
+            $rel_date = floor($diff_count_d / 7) . get_noun_plural_form(floor($diff_count_d / 7), ' неделю ', ' недели ', ' недель ') . 'назад';
+        }
+        elseif ($diff_count_m == 1 && $diff_count_d < 5): {
+            $rel_date = $diff_count_m . get_noun_plural_form(floor((intval($diff_count_d) + 30) / 7), ' неделю ', ' недели ', ' недель ') . 'назад';
+        }
+        elseif ($diff_count_m == 1 && $diff_count_d >= 5): {
+            $rel_date = $diff_count_m . get_noun_plural_form($diff_count_m, ' месяц ', ' месяца ', ' месяцев ') . 'назад';
+        }
+        elseif ($diff_count_m > 1): {
+            $rel_date = $diff_count_m . get_noun_plural_form($diff_count_m, ' месяц ', ' месяца ', ' месяцев ') . 'назад';
+        }
+        endif;
+    $dt_array = [$gen_date_str, $gen_date_format_str, $rel_date];
+    return $dt_array;
 }
 
 //Шаблонизация

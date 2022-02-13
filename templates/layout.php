@@ -1,3 +1,12 @@
+<?php
+/**
+ * @var string $title
+ * @var bool $is_auth
+ * @var string $user_name
+ * @var string $content
+ */
+?>
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
