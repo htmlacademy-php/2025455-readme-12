@@ -1,5 +1,7 @@
 <?php
 require_once 'helpers.php';
+require_once 'uploads/utils.php';
+date_default_timezone_set('Europe/Moscow');
 $is_auth = rand(0, 1);
 
 $user_name = 'Семенов Никита'; // укажите здесь ваше имя
@@ -56,34 +58,6 @@ $posts = [
         'avatar' => 'userpic.jpg',
     ]
 ];
-
-//Функция, обрезающая содержимое текстового контента по заданному кол-ву симловов
-function text_cut( $text, $quantity = 300) {
-
-    $start_length = iconv_strlen($text);
-    $process_length = 0;
-    $count = 0;
-
-    if ($start_length <= $quantity) {
-        $new_text = $text;
-    }
-    else {
-        $words = explode(" ",  $text);
-
-        while ($process_length <= $quantity) {
-            $word_length = iconv_strlen($words[$count]);
-            $process_length = $process_length + $word_length + 1;//+ 1 учитывает символ пробела после каждого слова
-            $count = $count + 1;
-        }
-
-        $count = $count - 2 + 1;
-        $new_words = array_slice($words, 0, $count, false);
-        $new_text = implode(" ", $new_words);
-        $new_text .= "...";
-    }
-
-    return $new_text;
-}
 
 //Шаблонизация
 
