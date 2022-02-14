@@ -152,8 +152,10 @@
                                 </div>
                                 <div class="post__info">
                                     <b class="post__author-name"><!--здесь имя пользоателя--><?= htmlspecialchars($post['author']) ?></b>
-                                    <?php $date_array = post_date($index); ?>
-                                    <time class="post__time" datetime="<?=$date_array[0]?>" title="<?=$date_array[1]?>"><?=$date_array[2]?></time>
+                                    <?php $date = generate_random_date($index); //может быть получена другим способом
+                                    $post['date'] = $date;
+                                    [$formatted_date, $relative_date] = post_date($date); ?>
+                                    <time class="post__time" datetime="<?=$date?>" title="<?=$formatted_date?>"><?=$relative_date?></time>
                                 </div>
                             </a>
                         </div>
