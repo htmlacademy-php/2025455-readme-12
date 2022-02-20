@@ -29,13 +29,13 @@ function text_cut( $text, $quantity = 300) {
 }
 
 //функция работы с относительной датой постов
-function post_date($gen_date_str) {
+function post_date($date_str) {
 
-    $gen_date = date_create($gen_date_str); //datetime object
-    $gen_date_format_str = date_format($gen_date, 'Y-m-d H:i'); //string
+    $date = date_create($date_str); //datetime object
+    $date_format_str = date_format($date, 'Y-m-d H:i'); //string
     $cur_date = date_create('now'); //datetime object
 
-    $diff = date_diff($gen_date, $cur_date);   //datetime object
+    $diff = date_diff($date, $cur_date);   //datetime object
     //string, could be used like int
     $diff_count_i = date_interval_format($diff, "%i");
     $diff_count_h = date_interval_format($diff, "%h");
@@ -65,7 +65,7 @@ function post_date($gen_date_str) {
     elseif ($diff_count_m > 1) {
         $rel_date = $diff_count_m . get_noun_plural_form($diff_count_m, ' месяц ', ' месяца ', ' месяцев ') . $back;
     }
-    return [$gen_date_format_str, $rel_date];
+    return [$date_format_str, $rel_date];
 }
 
 ?>
