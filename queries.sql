@@ -2,14 +2,14 @@ USE `2025455-readme-12`;
 
 /*запросы для добавления информации в БД*/
 /*список типов контента для поста*/
-INSERT INTO content_types (title, class_icon)
-VALUES ('Картинка','photo'),('Видео','video'),('Текст','text'),('Цитата','quote'),('Ссылка','link');
+INSERT INTO content_types (type_title, class_icon, alias)
+VALUES ('Картинка','photo','photo'),('Видео','video','video'),('Текст','text','text'),('Цитата','quote','quote'),('Ссылка','link','link');
 
 /*новые пользователи*/
 INSERT INTO users (registration_date, email, login, password, avatar)
 VALUES
-('2021-08-16 15:42:34', 'deLaplacethebest@gmail.com', 'Scientist_deLaplace', 'Lagrange_for_kids1', 'https://upload.wikimedia.org/wikipedia/commons/e/e3/Pierre-Simon_Laplace.jpg'),
-('2021-09-15 16:28:49', 'Lagrangethebest@gmail.com', 'Scientist_Lagrange', 'deLaplace_for_kids1', 'https://upload.wikimedia.org/wikipedia/commons/4/46/%D0%9B%D0%B0%D0%B3%D1%80%D0%B0%D0%BD%D0%B6.jpg');
+('2021-08-16 15:42:34', 'deLaplacethebest@gmail.com', 'Scientist_deLaplace', 'Lagrange_for_kids1', 'userpic-mark.jpg'),
+('2021-09-15 16:28:49', 'Lagrangethebest@gmail.com', 'Scientist_Lagrange', 'deLaplace_for_kids1', 'userpic.jpg');
 
 /*список постов*/    /*до комментов, тк в комментах указывается id поста*/
 INSERT INTO posts (creation_date, title, text, quote_author, img, video, link, view_count, user_id, content_types_id)
@@ -34,7 +34,7 @@ VALUES
 
 /*запросы для действий с БД*/
 /*получить список постов с сортировкой по популярности, вместе с именами авторов и типом контента*/
-SELECT u.login, t.title, creation_date, p.title, text, quote_author, img, video, link, view_count, user_id, content_types_id /*несмотря на вывод строк, id еще могут пригодиться*/
+SELECT u.login, t.type_title, creation_date, p.title, text, quote_author, img, video, link, view_count, user_id, content_types_id /*несмотря на вывод строк, id еще могут пригодиться*/
 FROM posts p
 INNER JOIN users u ON p.user_id = u.id
 INNER JOIN content_types t ON p.content_types_id = t.id

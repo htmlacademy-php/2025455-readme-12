@@ -47,22 +47,22 @@ function post_date($date_str) {
     if ($diff_count_i > 0 && $diff_count_i  < 60) {
         $rel_date = $diff_count_i . get_noun_plural_form($diff_count_i, ' минута ', ' минуты ', ' минут ') . $back;
     }
-    elseif ($diff_count_h >= 1 && $diff_count_h  < 24) {
+    if ($diff_count_h >= 1 && $diff_count_h  < 24) {
         $rel_date = $diff_count_h . get_noun_plural_form($diff_count_h, ' час ', ' часа ', ' часов ') . $back;
     }
-    elseif ($diff_count_d >= 1 && $diff_count_d < 7) {
+    if ($diff_count_d >= 1 && $diff_count_d < 7) {
         $rel_date = $diff_count_d . get_noun_plural_form($diff_count_d, ' день ', ' дня ', ' дней ') . $back;
     }
-    elseif ($diff_count_d >= 7 && $diff_count_d < 30) {
+    if ($diff_count_d >= 7 && $diff_count_d < 30) {
         $rel_date = floor($diff_count_d / 7) . get_noun_plural_form(floor($diff_count_d / 7), ' неделю ', ' недели ', ' недель ') . $back;
     }
-    elseif ($diff_count_m == 1 && $diff_count_d < 5) {
+    if ($diff_count_m == 1 && $diff_count_d < 5) {
         $rel_date = floor((intval($diff_count_d) + 30) / 7) . get_noun_plural_form(floor((intval($diff_count_d) + 30) / 7), ' неделю ', ' недели ', ' недель ') . $back;
     }
-    elseif ($diff_count_m == 1 && $diff_count_d >= 5) {
+    if ($diff_count_m == 1 && $diff_count_d >= 5) {
         $rel_date = $diff_count_m . get_noun_plural_form($diff_count_m, ' месяц ', ' месяца ', ' месяцев ') . $back;
     }
-    elseif ($diff_count_m > 1) {
+    if ($diff_count_m > 1) {
         $rel_date = $diff_count_m . get_noun_plural_form($diff_count_m, ' месяц ', ' месяца ', ' месяцев ') . $back;
     }
     return [$date_format_str, $rel_date];
