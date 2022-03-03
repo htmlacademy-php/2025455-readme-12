@@ -78,12 +78,12 @@ function get_db($con, $sql_query) {
 }
 
 //функция для показа постов
-function get_posts_from_db($con, $sorting, $sort_type, $quantity) {
+function get_posts_from_db($con, $sorting, $sort_type, $limit) {
     $query = sprintf("SELECT users.login, users.avatar, content_types.type_title, content_types.alias, creation_date, posts.title, text, quote_author, img, video, link, view_count, user_id, content_types_id
 FROM posts
 INNER JOIN content_types ON posts.content_types_id = content_types.id
 INNER JOIN users ON posts.user_id = users.id
-ORDER BY %s %s LIMIT %s", $sorting, $sort_type, $quantity);
+ORDER BY %s %s LIMIT %d ", $sorting, $sort_type, $limit);
     $array = get_db($con, $query);
 
     return($array);
@@ -98,24 +98,21 @@ function get_types_from_db($con) {
 }
 
 //функция, определяющая класс по алиасу
-function add_post_css_class($alias) {
+function get_post_css_class($alias) {
 
     switch ($alias !== '') {
         case ($alias === 'photo'):
-            $class = 'post-photo';
-            return($class);
+            return 'post-photo';
         case ($alias === 'video'):
-            $class = 'post-video';
-            return($class);
+            return 'post-video';
         case ($alias === 'text'):
-            $class = 'post-text';
-            return($class);
+            return 'post-text';
         case ($alias === 'quote'):
-            $class = 'post-quote';
-            return($class);
+            return 'post-quote';
         case ($alias === 'link'):
-            $class = 'post-link';
-            return($class);
+            return 'post-link';
+        default:
+            return '';
     }
 }
 ?>

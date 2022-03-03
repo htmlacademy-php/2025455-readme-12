@@ -1,7 +1,7 @@
 <?php
 /**
- * @var array $posts_bd
- * @var array $types_bd
+ * @var array $posts
+ * @var array $types
  */
 ?>
 <div class="container">
@@ -46,7 +46,7 @@
                             <span>Все</span>
                         </a>
                     </li>
-                    <?php foreach ($types_bd as $type): ?>
+                    <?php foreach ($types as $type): ?>
                     <?php
                     switch ($type['alias'] !== '') {
                         case ($type['alias'] === 'photo'):
@@ -122,8 +122,8 @@
             </div>
         </div>
         <div class="popular__posts">
-            <?php foreach ($posts_bd as $index=>$post): ?>
-                <?php $css_class = add_post_css_class($post['alias']); ?>
+            <?php foreach ($posts as $index=>$post): ?>
+                <?php $css_class = get_post_css_class($post['alias']); ?>
                 <article class="popular__post post <?=$css_class?>">
                     <header class="post__header">
                         <h2><!--здесь заголовок--><?= htmlspecialchars($post['title']) ?></h2>
