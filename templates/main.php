@@ -47,11 +47,29 @@
                         </a>
                     </li>
                     <?php foreach ($types_bd as $type): ?>
-                    <?php if ($type['alias'] === 'photo') {$filters__button = 'filters__button--photo'; $url = '#icon-filter-photo';}
-                    elseif ($type['alias'] === 'video') {$filters__button = 'filters__button--video'; $url = '#icon-filter-video';}
-                    elseif ($type['alias'] === 'text') {$filters__button = 'filters__button--text'; $url = '#icon-filter-text';}
-                    elseif ($type['alias'] === 'quote') {$filters__button = 'filters__button--quote'; $url = '#icon-filter-quote';}
-                    elseif ($type['alias'] === 'link') {$filters__button = 'filters__button--link'; $url = '#icon-filter-link';}
+                    <?php
+                    switch ($type['alias'] !== '') {
+                        case ($type['alias'] === 'photo'):
+                            $filters__button = 'filters__button--photo';
+                            $url = '#icon-filter-photo';
+                            break;
+                        case ($type['alias'] === 'video'):
+                            $filters__button = 'filters__button--video';
+                            $url = '#icon-filter-video';
+                            break;
+                        case ($type['alias'] === 'text'):
+                            $filters__button = 'filters__button--text';
+                            $url = '#icon-filter-text';
+                            break;
+                        case ($type['alias'] === 'quote'):
+                            $filters__button = 'filters__button--quote';
+                            $url = '#icon-filter-quote';
+                            break;
+                        case ($type['alias'] === 'link'):
+                            $filters__button = 'filters__button--link';
+                            $url = '#icon-filter-link';
+                            break;
+                    }
                     ?>
                     <?php if ($type['alias'] === 'photo'): ?>
                     <li class="popular__filters-item filters__item">
@@ -105,12 +123,7 @@
         </div>
         <div class="popular__posts">
             <?php foreach ($posts_bd as $index=>$post): ?>
-            <?php if ($post['alias'] === 'photo') {$css_class = 'post-photo';}
-                elseif ($post['alias'] === 'video') {$css_class = 'post-video';}
-                elseif ($post['alias'] === 'text') {$css_class = 'post-text';}
-                elseif ($post['alias'] === 'quote') {$css_class = 'post-quote';}
-                elseif ($post['alias'] === 'link') {$css_class = 'post-link';}
-                ?>
+                <?php $css_class = add_post_css_class($post['alias']); ?>
                 <article class="popular__post post <?=$css_class?>">
                     <header class="post__header">
                         <h2><!--здесь заголовок--><?= htmlspecialchars($post['title']) ?></h2>

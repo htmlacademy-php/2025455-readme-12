@@ -68,5 +68,55 @@ function post_date($date_str) {
     return [$date_format_str, $rel_date];
 }
 
+//функция, получающая из бд массив c данными по строке запроса
+function get_db($con, $sql_query) {
+    //$result = $sql_query->get_result();
+    $result = mysqli_query($con, $sql_query);
+    $array = mysqli_fetch_all($result, MYSQLI_ASSOC);
+
+    return($array);
+}
+
+//функция для показа постов
+function get_posts_from_db($con, $sorting, $sort_type, $quantity) {
+    $query = sprintf("SELECT users.login, users.avatar, content_types.type_title, content_types.alias, creation_date, posts.title, text, quote_author, img, video, link, view_count, user_id, content_types_id
+FROM posts
+INNER JOIN content_types ON posts.content_types_id = content_types.id
+INNER JOIN users ON posts.user_id = users.id
+ORDER BY %s %s LIMIT %s", $sorting, $sort_type, $quantity);
+    $array = get_db($con, $query);
+
+    return($array);
+}
+
+//функция для показа типов контента
+function get_types_from_db($con) {
+    $query = "SELECT type_title, class_icon, alias from content_types";
+    $array = get_db($con, $query);
+
+    return($array);
+}
+
+//функция, определяющая класс по алиасу
+function add_post_css_class($alias) {
+
+    switch ($alias !== '') {
+        case ($alias === 'photo'):
+            $class = 'post-photo';
+            return($class);
+        case ($alias === 'video'):
+            $class = 'post-video';
+            return($class);
+        case ($alias === 'text'):
+            $class = 'post-text';
+            return($class);
+        case ($alias === 'quote'):
+            $class = 'post-quote';
+            return($class);
+        case ($alias === 'link'):
+            $class = 'post-link';
+            return($class);
+    }
+}
 ?>
 

@@ -61,46 +61,36 @@ $user_name = 'Семенов Никита'; // укажите здесь ваш�
 
 //DB
 $con = mysqli_connect("127.0.0.1", "root", "", "2025455-readme-12");
-if ($con == false) {
+if (!$con) {
     print("Ошибка подключения: " . mysqli_connect_error());
 }
-else {
-    print("Соединение установлено");
-}
+
 
 mysqli_set_charset($con, "utf8");
 
-//запрос на получение списка популярных постов
-$sql_posts = "SELECT users.login, users.avatar, content_types.type_title, content_types.alias, creation_date, posts.title, text, quote_author, img, video, link, view_count, user_id, content_types_id
-FROM posts
-INNER JOIN content_types ON posts.content_types_id = content_types.id
-INNER JOIN users ON posts.user_id = users.id
-ORDER BY view_count DESC";
-$result_posts = mysqli_query($con, $sql_posts);
-$posts_bd = mysqli_fetch_all($result_posts, MYSQLI_ASSOC);
-if ($posts_bd == []) {
-    print("Не работает(");
-}
-else {
-    print(". Массив постовБД заполнен");
+//Posts DB
+$posts_bd = get_posts_from_db($con, 'view_count', 'DESC', '6');
+foreach ($posts_bd as $post_bd) {
+    if ($post_bd['alias'] == NULL) {
+        $posts_bd == [];
+        break;
+    }
 }
 
-//запрос на получение списка типов контента
-$sql_types = "SELECT type_title, class_icon, alias from content_types";
-$result_types = mysqli_query($con, $sql_types);
-$types_bd = mysqli_fetch_all($result_types, MYSQLI_ASSOC);
-if ($types_bd == []) {
-    print("Не работает(");
-}
-else {
-    print(". Массив типовБД заполнен");
+//Types DB
+$types_bd = get_types_from_db($con);
+foreach ($types_bd as $type_bd) {
+    if ($type_bd['alias'] == NULL) {
+        $types_bd == [];
+        break;
+    }
 }
 
 //Шаблонизация
-
 $page_content = include_template('main.php', ['posts_bd' => $posts_bd, 'types_bd' => $types_bd]);
 
 $layout_content = include_template('layout.php', ['title' => 'readme: полезное', 'is_auth' => $is_auth, 'user_name' => $user_name, 'content' => $page_content]);
 
 print($layout_content);
+
 ?>
