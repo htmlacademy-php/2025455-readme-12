@@ -76,12 +76,14 @@ CREATE UNIQUE INDEX title ON hashtags(title);
 
 CREATE TABLE content_types (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  title CHAR(8),
-  class_icon CHAR(8)
+  type_title CHAR(8),
+  class_icon CHAR(8),
+  alias VARCHAR(8)
 );
 
-CREATE INDEX title ON content_types(title);
+CREATE INDEX type_title ON content_types(type_title);
 CREATE INDEX class_icon ON content_types(class_icon);
+CREATE INDEX alias ON content_types(alias);
 
 /*связи*/
 

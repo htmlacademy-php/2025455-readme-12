@@ -47,26 +47,73 @@ function post_date($date_str) {
     if ($diff_count_i > 0 && $diff_count_i  < 60) {
         $rel_date = $diff_count_i . get_noun_plural_form($diff_count_i, ' минута ', ' минуты ', ' минут ') . $back;
     }
-    elseif ($diff_count_h >= 1 && $diff_count_h  < 24) {
+    if ($diff_count_h >= 1 && $diff_count_h  < 24) {
         $rel_date = $diff_count_h . get_noun_plural_form($diff_count_h, ' час ', ' часа ', ' часов ') . $back;
     }
-    elseif ($diff_count_d >= 1 && $diff_count_d < 7) {
+    if ($diff_count_d >= 1 && $diff_count_d < 7) {
         $rel_date = $diff_count_d . get_noun_plural_form($diff_count_d, ' день ', ' дня ', ' дней ') . $back;
     }
-    elseif ($diff_count_d >= 7 && $diff_count_d < 30) {
+    if ($diff_count_d >= 7 && $diff_count_d < 30) {
         $rel_date = floor($diff_count_d / 7) . get_noun_plural_form(floor($diff_count_d / 7), ' неделю ', ' недели ', ' недель ') . $back;
     }
-    elseif ($diff_count_m == 1 && $diff_count_d < 5) {
+    if ($diff_count_m == 1 && $diff_count_d < 5) {
         $rel_date = floor((intval($diff_count_d) + 30) / 7) . get_noun_plural_form(floor((intval($diff_count_d) + 30) / 7), ' неделю ', ' недели ', ' недель ') . $back;
     }
-    elseif ($diff_count_m == 1 && $diff_count_d >= 5) {
+    if ($diff_count_m == 1 && $diff_count_d >= 5) {
         $rel_date = $diff_count_m . get_noun_plural_form($diff_count_m, ' месяц ', ' месяца ', ' месяцев ') . $back;
     }
-    elseif ($diff_count_m > 1) {
+    if ($diff_count_m > 1) {
         $rel_date = $diff_count_m . get_noun_plural_form($diff_count_m, ' месяц ', ' месяца ', ' месяцев ') . $back;
     }
     return [$date_format_str, $rel_date];
 }
 
+//функция, получающая из бд массив c данными по строке запроса
+function get_db($con, $sql_query) {
+    //$result = $sql_query->get_result();
+    $result = mysqli_query($con, $sql_query);
+    $array = mysqli_fetch_all($result, MYSQLI_ASSOC);
+
+    return($array);
+}
+
+//функция для показа постов
+function get_posts_from_db($con, $sorting, $sort_type, $limit) {
+    $query = sprintf("SELECT users.login, users.avatar, content_types.type_title, content_types.alias, creation_date, posts.title, text, quote_author, img, video, link, view_count, user_id, content_types_id
+FROM posts
+INNER JOIN content_types ON posts.content_types_id = content_types.id
+INNER JOIN users ON posts.user_id = users.id
+ORDER BY %s %s LIMIT %d ", $sorting, $sort_type, $limit);
+    $array = get_db($con, $query);
+
+    return($array);
+}
+
+//функция для показа типов контента
+function get_types_from_db($con) {
+    $query = "SELECT type_title, class_icon, alias from content_types";
+    $array = get_db($con, $query);
+
+    return($array);
+}
+
+//функция, определяющая класс по алиасу
+function get_post_css_class($alias) {
+
+    switch ($alias !== '') {
+        case ($alias === 'photo'):
+            return 'post-photo';
+        case ($alias === 'video'):
+            return 'post-video';
+        case ($alias === 'text'):
+            return 'post-text';
+        case ($alias === 'quote'):
+            return 'post-quote';
+        case ($alias === 'link'):
+            return 'post-link';
+        default:
+            return '';
+    }
+}
 ?>
 
