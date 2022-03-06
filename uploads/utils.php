@@ -1,7 +1,12 @@
 <?php
 
-//Функция, обрезающая содержимое текстового контента по заданному кол-ву симловов
-function text_cut( $text, $quantity = 300) {
+/**
+ * Функция, обрезающая содержимое текстового контента по заданному кол-ву симловов
+ * @param string $text
+ * @param int $quantity
+ * @return mixed|string Урезанный текст и ссылка на продолжение
+ */
+function text_cut($text, $quantity = 300) {
 
     $start_length = iconv_strlen($text);
     $process_length = 0;
@@ -28,7 +33,12 @@ function text_cut( $text, $quantity = 300) {
     return $new_text;
 }
 
-//функция работы с относительной датой постов
+
+/**
+ * Функция работы с относительной датой постов
+ * @param mixed $date_str
+ * @return array Отформатированная дата, относительная дата
+ */
 function post_date($date_str) {
 
     $date = date_create($date_str); //datetime object
@@ -68,7 +78,12 @@ function post_date($date_str) {
     return [$date_format_str, $rel_date];
 }
 
-//функция, получающая из бд массив c данными по строке запроса
+/**
+ * Функция, получающая из бд массив c данными по строке запроса
+ * @param false|mysqli|null $con
+ * @param $sql_query
+ * @return array Ассоциативный массив с данными из БД
+ */
 function get_db($con, $sql_query) {
     //$result = $sql_query->get_result();
     $result = mysqli_query($con, $sql_query);
@@ -77,7 +92,14 @@ function get_db($con, $sql_query) {
     return($array);
 }
 
-//функция для показа постов
+/**
+ * Функция для показа постов
+ * @param false|mysqli|null $con
+ * @param string $sorting
+ * @param string $sort_type
+ * @param int $limit
+ * @return array Массив типов контента из базы данных
+ */
 function get_posts_from_db($con, $sorting, $sort_type, $limit) {
     $query = sprintf("SELECT users.login, users.avatar, content_types.type_title, content_types.alias, creation_date, posts.title, text, quote_author, img, video, link, view_count, user_id, content_types_id
 FROM posts
@@ -89,7 +111,11 @@ ORDER BY %s %s LIMIT %d ", $sorting, $sort_type, $limit);
     return($array);
 }
 
-//функция для показа типов контента
+/**
+ * Функция для показа типов контента
+ * @param false|mysqli|null $con
+ * @return array Массив типов контента из базы данных
+ */
 function get_types_from_db($con) {
     $query = "SELECT type_title, class_icon, alias from content_types";
     $array = get_db($con, $query);
@@ -97,7 +123,11 @@ function get_types_from_db($con) {
     return($array);
 }
 
-//функция, определяющая класс по алиасу
+/**
+ * Функция, определяющая класс по алиасу
+ * @param string $alias
+ * @return string Класс оформления для поста
+ */
 function get_post_css_class($alias) {
 
     switch ($alias !== '') {
