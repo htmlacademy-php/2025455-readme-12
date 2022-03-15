@@ -26,11 +26,11 @@ VALUES
 ('2021-05-28 00:51:39', 'Лучшие курсы',NULL,NULL,NULL,NULL, 'www.htmlacademy.ru',3022,2,5);
 
 /*комментарии к постам*/
-INSERT INTO comments (creation_date, content, user_id, post_id)
+INSERT INTO comments (comment_creation_date, content, user_id, post_id)
 VALUES
 ('2022-02-20 09:05:41', 'Макс лучший!', 1, 3),
 ('2022-02-19 12:14:16', 'Льюис восьмикратный!', 2, 3),
-('2022-01-30 19:20:47', 'Ладно.', 2, 4);
+('2022-01-30 19:20:47', 'Ладно.', 1, 4);
 
 /*запросы для действий с БД*/
 /*получить список постов с сортировкой по популярности, вместе с именами авторов и типом контента*/
@@ -47,7 +47,7 @@ INNER JOIN users u ON p.user_id = u.id
 WHERE u.id = 1;
 
 /*получить список комментариев для одного поста, в комментариях должен быть логин пользователя*/
-SELECT u.login, c.creation_date, content, c.user_id, post_id
+SELECT u.login, c.comment_creation_date, content, c.user_id, post_id
 FROM comments c
 INNER JOIN users u ON c.user_id = u.id
 INNER JOIN posts p ON c.post_id = p.id
@@ -60,3 +60,11 @@ VALUES (2,3);
 /*подписаться на пользователя*/
 INSERT INTO subscriptions (author_user_id, subscribed_user_id)
 VALUES (1,2);
+
+/*тестовые хэштеги*/
+INSERT INTO hashtags (hashtag_title)
+VALUES ('интересно'),('втопе'),('формула1'),('фото'),('фотоприроды'),('полезныесайты'),('сериалы'),('цитата');
+
+/*многие-ко-многим:посты и хэштеги*/
+INSERT INTO posts_hashtags (post_id, hashtag_id)
+VALUES (1,1),(1,8),(2,1),(2,2),(2,7),(3,1),(3,2),(3,3),(4,4),(4,5),(5,2),(5,4),(5,5),(6,1),(6,2),(6,6);

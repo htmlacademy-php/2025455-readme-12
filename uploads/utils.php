@@ -39,7 +39,7 @@ function text_cut($text, $quantity = 300) {
  * @param mixed $date_str
  * @return array Отформатированная дата, относительная дата
  */
-function post_date($date_str) {
+function post_date($date_str, $back) {
 
     $date = date_create($date_str); //datetime object
     $date_format_str = date_format($date, 'Y-m-d H:i'); //string
@@ -52,7 +52,6 @@ function post_date($date_str) {
     $diff_count_d = date_interval_format($diff, "%d");
     $diff_count_m = date_interval_format($diff, "%m");
     $rel_date = 0;
-    $back = "назад";
 
     if ($diff_count_i > 0 && $diff_count_i  < 60) {
         $rel_date = $diff_count_i . get_noun_plural_form($diff_count_i, ' минута ', ' минуты ', ' минут ') . $back;
@@ -98,14 +97,25 @@ function get_db($con, $sql_query) {
  * @param string $sorting
  * @param string $sort_type
  * @param int $limit
+ * @param int $filter_id
  * @return array Массив типов контента из базы данных
  */
-function get_posts_from_db($con, $sorting, $sort_type, $limit) {
-    $query = sprintf("SELECT users.login, users.avatar, content_types.type_title, content_types.alias, creation_date, posts.title, text, quote_author, img, video, link, view_count, user_id, content_types_id
+function get_posts_from_db($con, $sorting, $sort_type, $limit, $filter_id) {
+    if ($filter_id != NULL) {
+    $query = sprintf("SELECT posts.id, users.login, users.avatar, content_types.type_title, content_types.alias, creation_date, posts.title, text, quote_author, img, video, link, view_count, user_id, content_types_id
 FROM posts
 INNER JOIN content_types ON posts.content_types_id = content_types.id
 INNER JOIN users ON posts.user_id = users.id
-ORDER BY %s %s LIMIT %d ", $sorting, $sort_type, $limit);
+WHERE content_types.id = %d
+ORDER BY %s %s LIMIT %d",  $filter_id, $sorting, $sort_type, $limit);
+    }
+    else {
+    $query = sprintf("SELECT posts.id, users.login, users.avatar, content_types.type_title, content_types.alias, creation_date, posts.title, text, quote_author, img, video, link, view_count, user_id, content_types_id
+FROM posts
+INNER JOIN content_types ON posts.content_types_id = content_types.id
+INNER JOIN users ON posts.user_id = users.id
+ORDER BY %s %s LIMIT %d", $sorting, $sort_type, $limit);
+    }
     $array = get_db($con, $query);
 
     return($array);
@@ -117,10 +127,124 @@ ORDER BY %s %s LIMIT %d ", $sorting, $sort_type, $limit);
  * @return array Массив типов контента из базы данных
  */
 function get_types_from_db($con) {
-    $query = "SELECT type_title, class_icon, alias from content_types";
+    $query = "SELECT type_title, class_icon, alias FROM content_types";
     $array = get_db($con, $query);
 
     return($array);
+}
+
+/**
+ * @param false|mysqli|null $con
+ * @param int $filter_id
+ * @return array Данные о посте
+ */
+function get_post_details_from_db($con, $filter_id) {
+    $query = sprintf("SELECT posts.id, content_types.alias, posts.title, text, quote_author, img, video, link, view_count, user_id, content_types_id
+FROM posts
+INNER JOIN content_types ON posts.content_types_id = content_types.id
+WHERE posts.id = %d",  $filter_id);
+    $array = get_db($con, $query);
+
+    return($array);
+}
+
+/**
+ * @param $con
+ * @param $filter_id
+ * @return int
+ */
+function get_likes_quantity($con, $filter_id) {
+    $query = sprintf("SELECT l.id, l.user_id, l.post_id
+FROM likes l
+INNER JOIN posts p ON l.post_id = p.id
+WHERE p.id = %d", $filter_id);
+    $array = get_db($con, $query);
+    $likes_quantity = count($array);
+    return($likes_quantity);
+}
+
+/**
+ * @param $con
+ * @param $filter_id
+ * @return array
+ */
+function get_hashtags_for_post($con, $filter_id) {
+    $query = sprintf("SELECT h.hashtag_title
+FROM posts p
+INNER JOIN posts_hashtags ph ON p.id = ph.post_id
+INNER JOIN hashtags h ON ph.hashtag_id = h.id
+WHERE p.id = %d", $filter_id);
+    $array = get_db($con, $query);
+
+    return($array);
+}
+
+/**
+ * @param $con
+ * @param $filter_id
+ * @return array
+ */
+function get_comments_for_post_details($con, $filter_id) {
+    $query = sprintf("SELECT p.id, u.login, u.avatar, c.comment_creation_date, content, c.user_id, post_id
+FROM comments c
+INNER JOIN users u ON c.user_id = u.id
+INNER JOIN posts p ON c.post_id = p.id
+WHERE p.id = %d", $filter_id);
+    $array = get_db($con, $query);
+
+    return($array);
+}
+
+/**
+ * @param $con
+ * @param $filter_id
+ * @return array
+ */
+function get_user_for_post_details($con, $filter_id) {
+    $query = sprintf("SELECT p.id, u.id, u.login, u.avatar, u.registration_date
+FROM posts p
+INNER JOIN users u ON p.user_id = u.id
+WHERE p.id = %d", $filter_id);
+    $array = get_db($con, $query);
+
+    return($array);
+}
+
+/**
+ * @param $con
+ * @param $filter_id
+ * @return int
+ */
+function get_subscribers_number($con, $filter_id) {
+    $query = sprintf("SELECT s.id, s.author_user_id, s.subscribed_user_id
+FROM subscriptions s
+INNER JOIN users u ON s.subscribed_user_id = u.id
+WHERE u.id = %d", $filter_id);
+    $array = get_db($con, $query);
+    $subscribers_number = count($array);
+    return($subscribers_number);
+}
+
+/**
+ * @param $con
+ * @param $filter_id
+ * @return int
+ */
+function get_publications_number($con, $filter_id) {
+    $query = sprintf("SELECT p.id, p.user_id, u.id
+FROM posts p
+INNER JOIN users u ON p.user_id = u.id
+WHERE u.id = %d", $filter_id);
+    $array = get_db($con, $query);
+    $posts_number = count($array);
+    return($posts_number);
+}
+
+function get_posts_quantity($con) {
+    $query = "SELECT id FROM posts";
+    $array = get_db($con, $query);
+    $posts_quantity = count($array);
+    return($posts_quantity);
 }
 
 /**
@@ -144,6 +268,97 @@ function get_post_css_class($alias) {
         default:
             return '';
     }
+}
+
+/**
+ * @param string $type_alias
+ * @return string[] CSS класс для кнопки
+ */
+function get_button_css_class($type_alias) {
+    switch ($type_alias !== '') {
+        case ($type_alias === 'photo'):
+            $filters__button = 'filters__button--photo';
+            break;
+        case ($type_alias === 'video'):
+            $filters__button = 'filters__button--video';
+            break;
+        case ($type_alias === 'text'):
+            $filters__button = 'filters__button--text';
+            break;
+        case ($type_alias === 'quote'):
+            $filters__button = 'filters__button--quote';
+            break;
+        case ($type_alias === 'link'):
+            $filters__button = 'filters__button--link';
+            break;
+    }
+
+    return $filters__button;
+}
+
+/**
+ * @param string $type_alias
+ * @return string[] значение для xlink
+ */
+function get_button_icon_url($type_alias) {
+    switch ($type_alias !== '') {
+        case ($type_alias === 'photo'):
+            $icon_url = '#icon-filter-photo';
+            break;
+        case ($type_alias === 'video'):
+            $icon_url = '#icon-filter-video';
+            break;
+        case ($type_alias === 'text'):
+            $icon_url = '#icon-filter-text';
+            break;
+        case ($type_alias === 'quote'):
+            $icon_url = '#icon-filter-quote';
+            break;
+        case ($type_alias === 'link'):
+            $icon_url = '#icon-filter-link';
+            break;
+    }
+
+    return $icon_url;
+}
+
+/**
+ * @param string $type_alias
+ * @return int параметр id для этого типа контента
+ */
+function get_id_for_content_type($type_alias) {
+    switch ($type_alias !== '') {
+        case ($type_alias === 'photo'):
+            $id = 1;
+            break;
+        case ($type_alias === 'video'):
+            $id = 2;
+            break;
+        case ($type_alias === 'text'):
+            $id = 3;
+            break;
+        case ($type_alias === 'quote'):
+            $id = 4;
+            break;
+        case ($type_alias === 'link'):
+            $id = 5;
+            break;
+    }
+
+    return $id;
+}
+
+/**
+ * @param int $url_id
+ * @param int $type_id
+ * @return string CSS класс для кнопки
+ */
+function is_button_active($url_id, $type_id) {
+    $button_active = '';
+    if ($url_id == $type_id) {
+        $button_active = 'filters__button--active';
+    }
+    return $button_active;
 }
 ?>
 
