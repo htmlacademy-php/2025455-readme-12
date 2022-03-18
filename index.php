@@ -1,16 +1,13 @@
 <?php
 require_once 'helpers.php';
 require_once 'uploads/utils.php';
-date_default_timezone_set('Europe/Moscow');
-$is_auth = rand(0, 1);
-$user_name = 'Семенов Никита';
+require_once 'source.php';
 
-//DB
-$con = mysqli_connect("127.0.0.1", "root", "", "2025455-readme-12");
-if (!$con) {
-    print("Ошибка подключения: " . mysqli_connect_error());
-}
-mysqli_set_charset($con, "utf8");
+/**
+ * @var $con
+ * @var $is_auth
+ * @var $user_name
+ */
 
 //Параметры запроса
 $url_content_types_id = $_GET['url_content_types_id'] ?? NULL;

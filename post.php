@@ -1,16 +1,13 @@
 <?php
 require_once 'helpers.php';
 require_once 'uploads/utils.php';
-date_default_timezone_set('Europe/Moscow');
-$is_auth = rand(0, 1);
-$user_name = 'Семенов Никита';
+require_once 'source.php';
 
-//DB
-$con = mysqli_connect("127.0.0.1", "root", "", "2025455-readme-12");
-if (!$con) {
-    print("Ошибка подключения: " . mysqli_connect_error());
-}
-mysqli_set_charset($con, "utf8");
+/**
+ * @var $con
+ * @var $is_auth
+ * @var $user_name
+ */
 
 //Параметры запроса
 $url_post_id = $_GET['url_post_id'] ?? NULL;
@@ -31,7 +28,9 @@ else {
 
     $post_content = include_template('post-' . $post_details[0]['alias'] . '.php', ['post' => $post_details[0]]);
 
-    $page_content = include_template('post_page.php', ['content' => $post_content, 'post' => $post_details[0], 'likes_quantity' => $likes_quantity, 'comments' => $comments, 'hashtags' => $hashtags, 'user' => $user_details[0], 'subscribers_number' => $subscribers_number, 'publications_number' => $publications_number, 'is_auth' => $is_auth, 'user_name' => $user_name]);
+    $main_content = include_template('post_page.php', ['content' => $post_content, 'post' => $post_details[0], 'likes_quantity' => $likes_quantity, 'comments' => $comments, 'hashtags' => $hashtags, 'user' => $user_details[0], 'subscribers_number' => $subscribers_number, 'publications_number' => $publications_number]);
+
+    $page_content = include_template('layout.php', ['title' => 'readme: публикация', 'content' => $main_content, 'is_auth' => $is_auth, 'user_name' => $user_name]);
 }
 print($page_content);
 ?>

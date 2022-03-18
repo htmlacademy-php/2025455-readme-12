@@ -360,5 +360,23 @@ function is_button_active($url_id, $type_id) {
     }
     return $button_active;
 }
+
+/**
+ * @param $type_id
+ * @return string ссылка для кнопок типа контента
+ */
+function get_link_for_type_button($type_id) {
+    $link = sprintf('index.php?url_content_types_id=%d',$type_id);
+    return $link;
+}
+
+/**
+ * @param $post_id
+ * @return string
+ */
+function get_link_for_post($post_id) {
+    $link = sprintf('post.php?url_post_id=%d',$post_id);
+    return $link;
+}
 ?>
 

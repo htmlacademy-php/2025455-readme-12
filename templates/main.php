@@ -43,14 +43,14 @@
                 <b class="popular__filters-caption filters__caption">Тип контента:</b>
                 <ul class="popular__filters-list filters__list">
                     <li class="popular__filters-item popular__filters-item--all filters__item filters__item--all">
-                        <a class="filters__button filters__button--ellipse filters__button--all <?=($url_content_types_id == '') ? 'filters__button--active' : ''?>" href="http://2025455-readme-12/">
+                        <a class="filters__button filters__button--ellipse filters__button--all <?=($url_content_types_id == '') ? 'filters__button--active' : ''?>" href="index.php">
                             <span>Все</span>
                         </a>
                     </li>
                     <?php foreach ($types as $type): ?>
                     <?php $id = get_id_for_content_type($type['alias'])?>
                     <li class="popular__filters-item filters__item">
-                        <a class="filters__button <?=get_button_css_class($type['alias'])?> button <?=is_button_active($url_content_types_id, $id)?>" href="http://2025455-readme-12/?url_content_types_id=<?=$id?>">
+                        <a class="filters__button <?=get_button_css_class($type['alias'])?> button <?=is_button_active($url_content_types_id, $id)?>" href=<?=get_link_for_type_button($id)?>>
                             <span class="visually-hidden"><?=$type['type_title']?></span>
                             <svg class="filters__icon" width="22" height="18">
                                 <use xlink:href="<?=get_button_icon_url($type['alias'])?>"></use>
@@ -66,7 +66,7 @@
                 <?php $css_class = get_post_css_class($post['alias']); ?>
                 <article class="popular__post post <?=$css_class?>">
                     <header class="post__header">
-                        <h2><!--здесь заголовок--><a href="http://2025455-readme-12/post.php/?url_post_id=<?=$post['id']?>"><?=htmlspecialchars($post['title'])?></a></h2>
+                        <h2><!--здесь заголовок--><a href="<?=get_link_for_post($post['id'])?>"><?=htmlspecialchars($post['title'])?></a></h2>
                     </header>
                     <div class="post__main">
                         <!--здесь содержимое карточки-->
