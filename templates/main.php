@@ -2,6 +2,7 @@
 /**
  * @var array $posts
  * @var array $types
+ * @var int $contype_id
  */
 ?>
 <div class="container">
@@ -42,81 +43,20 @@
                 <b class="popular__filters-caption filters__caption">Тип контента:</b>
                 <ul class="popular__filters-list filters__list">
                     <li class="popular__filters-item popular__filters-item--all filters__item filters__item--all">
-                        <a class="filters__button filters__button--ellipse filters__button--all filters__button--active" href="#">
+                        <a class="filters__button filters__button--ellipse filters__button--all <?=($contype_id == '') ? 'filters__button--active' : ''?>" href="index.php">
                             <span>Все</span>
                         </a>
                     </li>
                     <?php foreach ($types as $type): ?>
-                    <?php
-                    switch ($type['alias'] !== '') {
-                        case ($type['alias'] === 'photo'):
-                            $filters__button = 'filters__button--photo';
-                            $url = '#icon-filter-photo';
-                            break;
-                        case ($type['alias'] === 'video'):
-                            $filters__button = 'filters__button--video';
-                            $url = '#icon-filter-video';
-                            break;
-                        case ($type['alias'] === 'text'):
-                            $filters__button = 'filters__button--text';
-                            $url = '#icon-filter-text';
-                            break;
-                        case ($type['alias'] === 'quote'):
-                            $filters__button = 'filters__button--quote';
-                            $url = '#icon-filter-quote';
-                            break;
-                        case ($type['alias'] === 'link'):
-                            $filters__button = 'filters__button--link';
-                            $url = '#icon-filter-link';
-                            break;
-                    }
-                    ?>
-                    <?php if ($type['alias'] === 'photo'): ?>
+                    <?php $id = get_id_for_content_type($type['alias'])?>
                     <li class="popular__filters-item filters__item">
-                        <a class="filters__button <?=$filters__button?> button" href="#">
-                            <span class="visually-hidden">Фото</span>
+                        <a class="filters__button <?=get_button_css_class($type['alias'])?> button <?=is_button_active($contype_id, $id)?>" href=<?=get_link_for_type_button($id)?>>
+                            <span class="visually-hidden"><?=$type['type_title']?></span>
                             <svg class="filters__icon" width="22" height="18">
-                                <use xlink:href="<?=$url?>"></use>
+                                <use xlink:href="<?=get_button_icon_url($type['alias'])?>"></use>
                             </svg>
                         </a>
                     </li>
-                    <?php elseif ($type['alias'] === 'video'): ?>
-                    <li class="popular__filters-item filters__item">
-                        <a class="filters__button <?=$filters__button?> button" href="#">
-                            <span class="visually-hidden">Видео</span>
-                            <svg class="filters__icon" width="24" height="16">
-                                <use xlink:href="<?=$url?>"></use>
-                            </svg>
-                        </a>
-                    </li>
-                    <?php elseif ($type['alias'] === 'text'): ?>
-                    <li class="popular__filters-item filters__item">
-                        <a class="filters__button <?=$filters__button?> button" href="#">
-                            <span class="visually-hidden">Текст</span>
-                              <svg class="filters__icon" width="20" height="21">
-                                <use xlink:href="<?=$url?>"></use>
-                            </svg>
-                        </a>
-                    </li>
-                    <?php elseif ($type['alias'] === 'quote'): ?>
-                    <li class="popular__filters-item filters__item">
-                        <a class="filters__button <?=$filters__button?> button" href="#">
-                            <span class="visually-hidden">Цитата</span>
-                            <svg class="filters__icon" width="21" height="20">
-                                <use xlink:href="<?=$url?>"></use>
-                            </svg>
-                        </a>
-                    </li>
-                    <?php elseif ($type['alias'] === 'link'): ?>
-                    <li class="popular__filters-item filters__item">
-                        <a class="filters__button <?=$filters__button?> button" href="#">
-                            <span class="visually-hidden">Ссылка</span>
-                            <svg class="filters__icon" width="21" height="18">
-                                <use xlink:href="<?=$url?>"></use>
-                            </svg>
-                        </a>
-                    </li>
-                    <?php endif; ?>
                     <?php endforeach; ?>
                 </ul>
             </div>
@@ -126,7 +66,7 @@
                 <?php $css_class = get_post_css_class($post['alias']); ?>
                 <article class="popular__post post <?=$css_class?>">
                     <header class="post__header">
-                        <h2><!--здесь заголовок--><?= htmlspecialchars($post['title']) ?></h2>
+                        <h2><!--здесь заголовок--><a href="<?=get_link_for_post($post['id'])?>"><?=htmlspecialchars($post['title'])?></a></h2>
                     </header>
                     <div class="post__main">
                         <!--здесь содержимое карточки-->
@@ -187,7 +127,7 @@
                                 <div class="post__info">
                                     <b class="post__author-name"><!--здесь имя пользователя--><?= htmlspecialchars($post['login']) ?></b>
                                     <?php $date = $post['creation_date']; //может быть получена любым способом
-                                    [$formatted_date, $relative_date] = post_date($date); ?>
+                                    [$formatted_date, $relative_date] = post_date($date, 'назад'); ?>
                                     <time class="post__time" datetime="<?=$date?>" title="<?=$formatted_date?>"><?=$relative_date?></time>
                                 </div>
                             </a>

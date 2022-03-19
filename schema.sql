@@ -37,13 +37,13 @@ CREATE INDEX view_count ON posts(view_count);
 
 CREATE TABLE comments (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  creation_date DATETIME,
+  comment_creation_date DATETIME,
   content TEXT,
   user_id INT,
   post_id INT
 );
 
-CREATE INDEX creation_date ON comments(creation_date);
+CREATE INDEX comment_creation_date ON comments(comment_creation_date);
 
 CREATE TABLE likes (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -59,20 +59,20 @@ CREATE TABLE subscriptions (
 
 CREATE TABLE messages (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  creation_date DATETIME,
+  message_creation_date DATETIME,
   content TEXT,
   sender_id INT,
   recipient_id INT
 );
 
-CREATE INDEX creation_date ON messages(creation_date);
+CREATE INDEX message_creation_date ON messages(message_creation_date);
 
 CREATE TABLE hashtags (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  title VARCHAR(64)
+  hashtag_title VARCHAR(128)
 );
 
-CREATE UNIQUE INDEX title ON hashtags(title);
+CREATE UNIQUE INDEX hashtag_title ON hashtags(hashtag_title);
 
 CREATE TABLE content_types (
   id INT AUTO_INCREMENT PRIMARY KEY,
