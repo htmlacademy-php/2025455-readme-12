@@ -83,9 +83,9 @@ function post_date($date_str, $back) {
  * @param $sql_query
  * @return array Ассоциативный массив с данными из БД
  */
-function get_db($con, $sql_query) {
+function get_db($sql_query) {
     //$result = $sql_query->get_result();
-    $result = mysqli_query($con, $sql_query);
+    $result = mysqli_query(require 'db.php', $sql_query);
     $array = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
     return($array);
@@ -100,7 +100,7 @@ function get_db($con, $sql_query) {
  * @param int $filter_id
  * @return array Массив типов контента из базы данных
  */
-function get_posts_from_db($con, $sorting, $sort_type, $limit, $filter_id) {
+function get_posts_from_db($sorting, $sort_type, $limit, $filter_id) {
     if ($filter_id != NULL) {
     $query = sprintf("SELECT posts.id, users.login, users.avatar, content_types.type_title, content_types.alias, creation_date, posts.title, text, quote_author, img, video, link, view_count, user_id, content_types_id
 FROM posts
@@ -116,7 +116,7 @@ INNER JOIN content_types ON posts.content_types_id = content_types.id
 INNER JOIN users ON posts.user_id = users.id
 ORDER BY %s %s LIMIT %d", $sorting, $sort_type, $limit);
     }
-    $array = get_db($con, $query);
+    $array = get_db($query);
 
     return($array);
 }
@@ -126,9 +126,9 @@ ORDER BY %s %s LIMIT %d", $sorting, $sort_type, $limit);
  * @param false|mysqli|null $con
  * @return array Массив типов контента из базы данных
  */
-function get_types_from_db($con) {
+function get_types_from_db() {
     $query = "SELECT type_title, class_icon, alias FROM content_types";
-    $array = get_db($con, $query);
+    $array = get_db($query);
 
     return($array);
 }
@@ -138,12 +138,12 @@ function get_types_from_db($con) {
  * @param int $filter_id
  * @return array Данные о посте
  */
-function get_post_details_from_db($con, $filter_id) {
+function get_post_details_from_db($filter_id) {
     $query = sprintf("SELECT posts.id, content_types.alias, posts.title, text, quote_author, img, video, link, view_count, user_id, content_types_id
 FROM posts
 INNER JOIN content_types ON posts.content_types_id = content_types.id
 WHERE posts.id = %d",  $filter_id);
-    $array = get_db($con, $query);
+    $array = get_db($query);
 
     return($array);
 }
@@ -153,12 +153,12 @@ WHERE posts.id = %d",  $filter_id);
  * @param $filter_id
  * @return int
  */
-function get_likes_quantity($con, $filter_id) {
+function get_likes_quantity($filter_id) {
     $query = sprintf("SELECT l.id, l.user_id, l.post_id
 FROM likes l
 INNER JOIN posts p ON l.post_id = p.id
 WHERE p.id = %d", $filter_id);
-    $array = get_db($con, $query);
+    $array = get_db($query);
     $likes_quantity = count($array);
     return($likes_quantity);
 }
@@ -168,13 +168,13 @@ WHERE p.id = %d", $filter_id);
  * @param $filter_id
  * @return array
  */
-function get_hashtags_for_post($con, $filter_id) {
+function get_hashtags_for_post($filter_id) {
     $query = sprintf("SELECT h.hashtag_title
 FROM posts p
 INNER JOIN posts_hashtags ph ON p.id = ph.post_id
 INNER JOIN hashtags h ON ph.hashtag_id = h.id
 WHERE p.id = %d", $filter_id);
-    $array = get_db($con, $query);
+    $array = get_db($query);
 
     return($array);
 }
@@ -184,13 +184,13 @@ WHERE p.id = %d", $filter_id);
  * @param $filter_id
  * @return array
  */
-function get_comments_for_post_details($con, $filter_id) {
+function get_comments_for_post_details($filter_id) {
     $query = sprintf("SELECT p.id, u.login, u.avatar, c.comment_creation_date, content, c.user_id, post_id
 FROM comments c
 INNER JOIN users u ON c.user_id = u.id
 INNER JOIN posts p ON c.post_id = p.id
 WHERE p.id = %d", $filter_id);
-    $array = get_db($con, $query);
+    $array = get_db($query);
 
     return($array);
 }
@@ -200,12 +200,12 @@ WHERE p.id = %d", $filter_id);
  * @param $filter_id
  * @return array
  */
-function get_user_for_post_details($con, $filter_id) {
+function get_user_for_post_details($filter_id) {
     $query = sprintf("SELECT p.id, u.id, u.login, u.avatar, u.registration_date
 FROM posts p
 INNER JOIN users u ON p.user_id = u.id
 WHERE p.id = %d", $filter_id);
-    $array = get_db($con, $query);
+    $array = get_db($query);
 
     return($array);
 }
@@ -215,12 +215,12 @@ WHERE p.id = %d", $filter_id);
  * @param $filter_id
  * @return int
  */
-function get_subscribers_number($con, $filter_id) {
+function get_subscribers_number($filter_id) {
     $query = sprintf("SELECT s.id, s.author_user_id, s.subscribed_user_id
 FROM subscriptions s
 INNER JOIN users u ON s.subscribed_user_id = u.id
 WHERE u.id = %d", $filter_id);
-    $array = get_db($con, $query);
+    $array = get_db($query);
     $subscribers_number = count($array);
     return($subscribers_number);
 }
@@ -230,19 +230,19 @@ WHERE u.id = %d", $filter_id);
  * @param $filter_id
  * @return int
  */
-function get_publications_number($con, $filter_id) {
+function get_publications_number($filter_id) {
     $query = sprintf("SELECT p.id, p.user_id, u.id
 FROM posts p
 INNER JOIN users u ON p.user_id = u.id
 WHERE u.id = %d", $filter_id);
-    $array = get_db($con, $query);
+    $array = get_db($query);
     $posts_number = count($array);
     return($posts_number);
 }
 
-function get_posts_quantity($con) {
+function get_posts_quantity() {
     $query = "SELECT id FROM posts";
-    $array = get_db($con, $query);
+    $array = get_db($query);
     $posts_quantity = count($array);
     return($posts_quantity);
 }
@@ -366,7 +366,7 @@ function is_button_active($url_id, $type_id) {
  * @return string ссылка для кнопок типа контента
  */
 function get_link_for_type_button($type_id) {
-    $link = sprintf('index.php?url_content_types_id=%d',$type_id);
+    $link = sprintf('index.php?contype_id=%d',$type_id);
     return $link;
 }
 
@@ -375,8 +375,15 @@ function get_link_for_type_button($type_id) {
  * @return string
  */
 function get_link_for_post($post_id) {
-    $link = sprintf('post.php?url_post_id=%d',$post_id);
+    $link = sprintf('post.php?id=%d',$post_id);
     return $link;
 }
-?>
 
+/**
+ * @param $alias
+ * @return string
+ */
+function get_filename($alias) {
+    $filename = sprintf('post-%s.php', $alias);
+    return $filename;
+}
