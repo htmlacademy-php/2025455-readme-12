@@ -121,3 +121,4 @@ ALTER TABLE subscriptions ADD CONSTRAINT FK_users_subscriptions_subscribed FOREI
 ALTER TABLE messages ADD CONSTRAINT FK_users_messages_sender FOREIGN KEY (sender_id) REFERENCES users(id);
 
 ALTER TABLE messages ADD CONSTRAINT FK_users_messages_recipient FOREIGN KEY (recipient_id) REFERENCES users(id);
+commentsinformation_schema

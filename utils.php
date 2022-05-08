@@ -79,7 +79,6 @@ function post_date($date_str, $back) {
 
 /**
  * Функция, получающая из бд массив c данными по строке запроса
- * @param false|mysqli|null $con
  * @param $sql_query
  * @return array Ассоциативный массив с данными из БД
  */
@@ -93,7 +92,6 @@ function get_db($sql_query) {
 
 /**
  * Функция для показа постов
- * @param false|mysqli|null $con
  * @param string $sorting
  * @param string $sort_type
  * @param int $limit
@@ -123,7 +121,6 @@ ORDER BY %s %s LIMIT %d", $sorting, $sort_type, $limit);
 
 /**
  * Функция для показа типов контента
- * @param false|mysqli|null $con
  * @return array Массив типов контента из базы данных
  */
 function get_types_from_db() {
@@ -134,7 +131,6 @@ function get_types_from_db() {
 }
 
 /**
- * @param false|mysqli|null $con
  * @param int $filter_id
  * @return array Данные о посте
  */
@@ -149,7 +145,6 @@ WHERE posts.id = %d",  $filter_id);
 }
 
 /**
- * @param $con
  * @param $filter_id
  * @return int
  */
@@ -164,7 +159,6 @@ WHERE p.id = %d", $filter_id);
 }
 
 /**
- * @param $con
  * @param $filter_id
  * @return array
  */
@@ -180,7 +174,6 @@ WHERE p.id = %d", $filter_id);
 }
 
 /**
- * @param $con
  * @param $filter_id
  * @return array
  */
@@ -196,7 +189,6 @@ WHERE p.id = %d", $filter_id);
 }
 
 /**
- * @param $con
  * @param $filter_id
  * @return array
  */
@@ -211,7 +203,6 @@ WHERE p.id = %d", $filter_id);
 }
 
 /**
- * @param $con
  * @param $filter_id
  * @return int
  */
@@ -226,7 +217,6 @@ WHERE u.id = %d", $filter_id);
 }
 
 /**
- * @param $con
  * @param $filter_id
  * @return int
  */
@@ -240,6 +230,9 @@ WHERE u.id = %d", $filter_id);
     return($posts_number);
 }
 
+/**
+ * @return int
+ */
 function get_posts_quantity() {
     $query = "SELECT id FROM posts";
     $array = get_db($query);
@@ -386,4 +379,208 @@ function get_link_for_post($post_id) {
 function get_filename($alias) {
     $filename = sprintf('post-%s.php', $alias);
     return $filename;
+}
+
+/**
+ * @param $type_id
+ * @return string ссылка для кнопок типа контента в форме публикации поста
+ */
+function get_link_for_form_type_button($type_id) {
+    $link = sprintf('add.php?pubtype_id=%d',$type_id);
+    return $link;
+}
+
+/**
+ * @param $id
+ */
+function get_filename_for_form_content($id) {
+    $alias = '';
+    switch (true) {
+        case ($id == 1):
+            $alias = 'photo';
+            break;
+        case ($id == 2):
+            $alias = 'video';
+            break;
+        case ($id == 3):
+            $alias = 'text';
+            break;
+        case ($id == 4):
+            $alias = 'quote';
+            break;
+        case ($id == 5):
+            $alias = 'link';
+            break;
+    }
+
+    $filename = sprintf('add_post_%s_type.php', $alias);
+
+    return $filename;
+}
+
+/**
+ * @param $id
+ * @return string
+ */
+function get_link_after_form_submit($id){
+    $link = sprintf("Location: ../add.php?pubtype_id=%d&success=true", $id);
+
+    return $link;
+}
+
+/**
+ * @param $new_post_id
+ * @return string ссылка для нового поста
+ */
+function get_link_for_new_post($new_post_id) {
+    $link = sprintf('../post.php?id=%d',$new_post_id);
+    return $link;
+}
+
+/**
+ * @param $name
+ * @return mixed|string
+ */
+function getPostVal($name) {
+    return $_POST[$name] ?? "";
+}
+
+/**
+ * @param $name
+ * @return string|void
+ */
+function validate_filled($name, $ru_name) {
+    if (empty($_POST[$name])) {
+        return sprintf("Поле %s должно быть заполнено", $ru_name);
+    }
+    return false;
+}
+
+function validate_filled_string_and_file($field_name, $file_field,  $ru_name_first, $ru_name_second) {
+    $file = $_FILES;
+    var_dump($file);
+    die;
+    if (empty($_POST[$field_name]) && empty($_FILES[$file_field]['tmp_name'])) {
+        return sprintf("Хотя бы одно из полей: %s, %s - должно быть заполнено", $ru_name_first, $ru_name_second);
+    }
+}
+
+/**
+ * @param $field
+ * @return string|void
+ */
+function get_form_field_status($field) {
+    if (!empty($field)) {
+        return 'form__input-section--error';
+    }
+    return false;
+}
+
+/**
+ * @param $url
+ * @return string|void
+ */
+function validate_url_format($url) {
+    if (!filter_var($url, FILTER_VALIDATE_URL)) {
+        return 'Некорректная ссылка';
+    }
+    return false;
+}
+
+function validate_tags($tags_field_name) {
+    if (empty($_POST[$tags_field_name]) || (substr($_POST[$tags_field_name], 0, 1) === ' ' && empty(trim($_POST[$tags_field_name])))) {
+        return 'Поле "Теги" должно содержать одно или больше слов';
+    }
+    if (strpos($_POST[$tags_field_name], '  ') !== false ) {
+        return 'Уберите лишние пробелы в поле "Теги". <br> Теги должны быть разделены одним пробелом';
+    }
+    //filter_input
+    return false;
+}
+
+function get_error_info($errors, $key) {
+    if (isset($errors[$key])) {
+        $error = $errors[$key];
+        return $error;
+    }
+    return false;
+}
+
+/*function validate_file_type($file_field_name) {
+    if (isset($_FILES[$file_field_name])) {
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $file_name = $_FILES[$file_field_name]['tmp_name'];
+
+        $file_type = finfo_file($finfo, $file_name);
+
+        if ($file_type !== 'image/png') {
+            print("Загрузите картинку в формате Gif");
+        }
+    }
+}*/
+
+function add_new_post($rules, $title, $text, $text_quote, $quote_author, $photo_link, $video_link, $link, $tags_field, $content_type_id) {
+    $date = date_create('now'); //datetime object
+    $creation_date = date_format($date, 'Y-m-d H:i:s'); //string
+    if (empty($_POST[$text])) {
+        $text = $text_quote;
+    }
+    //photo check
+    //
+
+    //checking the existence of fields
+    foreach ($rules as $key => $value) {
+        if (empty($_POST[$key])) {
+            $_POST[$key] = NULL;
+        }
+    }
+    // add
+    $con = require_once 'db.php';
+    $sql = "INSERT INTO posts (creation_date, title, text, quote_author, img, video, link, view_count, user_id, content_types_id)
+    VALUES ('$creation_date','$_POST[$title]', '$_POST[$text]', '$_POST[$quote_author]', '$_POST[$photo_link]', '$_POST[$video_link]', '$_POST[$link]', 15, 1, $content_type_id)";
+    $result = mysqli_query($con, $sql);
+    $post_id = mysqli_insert_id($con);
+
+    //add tags
+    $tags = explode(' ', $_POST[$tags_field]);
+    foreach ($tags as $tag) {
+        $sql_hashtags = "INSERT INTO hashtags (hashtag_title) VALUES ('$tag')";
+        $result_hashtags = mysqli_query($con, $sql_hashtags);
+        $hashtag_id = mysqli_insert_id($con);
+        $sql_posts_hashtags = "INSERT INTO posts_hashtags (post_id, hashtag_id) VALUES ('$post_id', '$hashtag_id')";
+        $result_posts_hashtags = mysqli_query($con, $sql_posts_hashtags);
+    }
+    $new_post_hashtags = get_hashtags_for_post($post_id);
+
+    if (($result) && (count($new_post_hashtags) != 0)) {
+        return $post_id;//new post id
+    }
+    return false;
+}
+
+/*function add_tags_to_new_post($tags_field, $post_id) {
+    $con = require_once 'db.php';
+    $tags = explode(' ', $_POST[$tags_field]);
+    foreach ($tags as $tag) {
+        $sql_hashtags = "INSERT INTO hashtags (hashtag_title) VALUES ('$tag')";
+        $result_hashtags = mysqli_query($con, $sql_hashtags);
+        $id = mysqli_insert_id($con);
+        $sql_posts_hashtags = "INSERT INTO posts_hashtags (post_id, hashtag_id) VALUES ('$post_id', '$id')";
+        $result_posts_hashtags = mysqli_query($con, $sql_posts_hashtags);
+    }
+    $new_post_hashtags = get_hashtags_for_post($post_id);
+    if (count($new_post_hashtags) != 0) {
+        return true;
+    }
+    return false;
+}*/
+
+/**
+ * @param $data
+ * just useful one to print out to the browsers console instead of just var_dumping
+ */
+function console_log( $data ){
+    echo '<script>';
+    echo 'console.log('. json_encode( $data ) .')';
+    echo '</script>';
 }

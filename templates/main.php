@@ -83,7 +83,7 @@
                             <?php if ($final_text !== $post['text']):?>
                                 <a class="post-text__more-link" href="#">Читать далее</a>
                             <?php endif; ?>
-                        <?php elseif ($post['type_title'] === 'Картинка'): ?>
+                        <?php elseif ($post['type_title'] === 'Фото'): ?>
                             <div class="post-photo__image-wrapper">
                                 <img src="img/<?= htmlspecialchars($post['img']) ?>" alt="Фото от пользователя" width="360" height="240">
                             </div>
