@@ -85,7 +85,7 @@
                             <?php endif; ?>
                         <?php elseif ($post['type_title'] === 'Фото'): ?>
                             <div class="post-photo__image-wrapper">
-                                <img src="img/<?= htmlspecialchars($post['img']) ?>" alt="Фото от пользователя" width="360" height="240">
+                                <img src="<?=get_photo_file_path($post['img'])?>" alt="Фото от пользователя" width="360" height="240">
                             </div>
                         <?php elseif ($post['type_title'] === 'Ссылка'): ?>
                             <div class="post-link__wrapper">

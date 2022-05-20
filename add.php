@@ -18,7 +18,6 @@ $pubtype_id = $_GET['pubtype_id'] ?? NULL;
 $errors = [];
 $rules = [
     //for all forms
-
     //heading
     'heading' => function() {
         return validate_filled('heading', '"Заголовок"');
@@ -28,20 +27,24 @@ $rules = [
     'post-tags' => function() {
         return validate_tags('post-tags');
     },
-    //for different ones
 
+    //for different ones
     //photo
     'photo-link' => function() {
         return validate_filled_string_and_file('photo-link', 'userpic-file-photo', '"Ссылка из интернета"', '"Выбрать фото"');
     },
-    'photo-link-format' => function() {
-        //if photo file doesn't exist =>
-        return validate_url_format($_POST['photo-link']);
+    'photo-link-validation' => function() {
+        if (empty($_FILES['userpic-file-photo']['tmp_name'])) {
+            return validate_photo_link($_POST['photo-link']);
+        }
+        return false;
+    },
+    'userpic-file-photo' => function() {
+        return validate_file_type('userpic-file-photo');
     },
 
     //video
     'video-link' => function() {
-
         return validate_filled('video-link', '"Ссылка YouTube"');
     },
     'video-format' => function() {
@@ -73,11 +76,14 @@ $rules = [
 
 //add extra ones / redefine post variables
 //for photo
-if (isset($_POST['photo-link'])) {
-    $_POST['photo-link-format'] = $_POST['photo-link'];
+if (!empty($_POST['photo-link'])) {
+    $_POST['photo-link-validation'] = $_POST['photo-link'];
+}
+if (!empty($_FILES['userpic-file-photo']['tmp_name'])) {
+    $_POST['userpic-file-photo'] = 1;
 }
 //for video
-if (isset($_POST['video-link'])) {
+if (!empty($_POST['video-link'])) {
     $_POST['video-format'] = $_POST['video-link'];
     $_POST['video-url'] = $_POST['video-link'];
 }
@@ -94,24 +100,17 @@ $errors = array_filter($errors);
 //Redirect/not
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (empty($errors)) {
-        $new_post_result = add_new_post($rules,'heading', 'post-text', 'post-quote', 'quote-author', 'photo-link', 'video-link', 'post-link', 'post-tags', $pubtype_id);
-        //$new_post_tags_result = add_tags_to_new_post('post-tags', $new_post_result);
+        $new_post_result = add_new_post($rules,'heading', 'post-text', 'post-quote', 'quote-author', 'photo-link', 'userpic-file-photo','video-link', 'post-link', 'post-tags', $pubtype_id);
         if ($new_post_result !== false) {
             //3 ways to go
-            header(get_link_after_form_submit($pubtype_id));
-            $file = 'new_post_info.php';
-            // here goes update
-            $content = $new_post_result;
-            //write file
-            file_put_contents($file, $content,  LOCK_EX);
+            header(get_link_after_form_submit($pubtype_id, $new_post_result));
         }
     }
 }
+
 console_log($_FILES);
 if (isset($_GET['success'])) {
-    $file = 'new_post_info.php';
-    $content = file_get_contents($file);
-    $new_post_id = intval($content);
+    $new_post_id = $_GET['new_post_id'];
     $modal = include_template('add_modal.php', compact('new_post_id'));
 }
 
@@ -119,6 +118,7 @@ if (isset($_GET['success'])) {
 $types = get_types_from_db();
 
 //Шаблонизация
+$js = '';
 
 $button = include_template('header_readme/close_button.php',[]);
 
@@ -126,7 +126,7 @@ $form_content = include_template(get_filename_for_form_content($pubtype_id),['pu
 
 $main_content = include_template('adding_post.php',['types' => $types, 'pubtype_id' => $pubtype_id, 'content' => $form_content]);
 
-$page_content = include_template('layout.php',['title' => 'readme: добавление публикации', 'is_auth' => $is_auth, 'user_name' => $user_name, 'content' => $main_content, 'button' => $button, 'modal_adding' => $modal, 'js' => '']);
+$page_content = include_template('layout.php',['title' => 'readme: добавление публикации', 'is_auth' => $is_auth, 'user_name' => $user_name, 'content' => $main_content, 'button' => $button, 'modal_adding' => $modal, 'js' => $js]);
 
 print($page_content);
 

@@ -90,6 +90,13 @@ function get_db($sql_query) {
     return($array);
 }
 
+/*function get_table_rows_number($sql_query) {
+    $array = get_db($sql_query);
+    $quantity = count($array);
+
+    return $quantity;
+}*/
+
 /**
  * Функция для показа постов
  * @param string $sorting
@@ -419,11 +426,12 @@ function get_filename_for_form_content($id) {
 }
 
 /**
- * @param $id
+ * @param $pubtype_id
+ * @param $new_post_id
  * @return string
  */
-function get_link_after_form_submit($id){
-    $link = sprintf("Location: ../add.php?pubtype_id=%d&success=true", $id);
+function get_link_after_form_submit($pubtype_id, $new_post_id){
+    $link = sprintf("Location: ../add.php?pubtype_id=%d&success=true&new_post_id=%d", $pubtype_id, $new_post_id);
 
     return $link;
 }
@@ -457,21 +465,8 @@ function validate_filled($name, $ru_name) {
 }
 
 function validate_filled_string_and_file($field_name, $file_field,  $ru_name_first, $ru_name_second) {
-    $file = $_FILES;
-    var_dump($file);
-    die;
     if (empty($_POST[$field_name]) && empty($_FILES[$file_field]['tmp_name'])) {
         return sprintf("Хотя бы одно из полей: %s, %s - должно быть заполнено", $ru_name_first, $ru_name_second);
-    }
-}
-
-/**
- * @param $field
- * @return string|void
- */
-function get_form_field_status($field) {
-    if (!empty($field)) {
-        return 'form__input-section--error';
     }
     return false;
 }
@@ -487,6 +482,42 @@ function validate_url_format($url) {
     return false;
 }
 
+/**
+ * @param $file_field_name
+ * @return false|string
+ */
+function validate_file_type($file_field_name) {
+    if (isset($_FILES[$file_field_name])) {
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $file_name = $_FILES[$file_field_name]['tmp_name'];
+
+        $file_type = finfo_file($finfo, $file_name);
+
+        if (($file_type !== 'image/png') && ($file_type !== 'image/jpeg') && ($file_type !== 'image/gif')) {
+            return 'Загрузите картинку в формате gif/png/jpeg';
+        }
+    }
+    return false;
+}
+
+/**
+ * @param $url
+ * @return false|string
+ */
+function validate_photo_link($url) {
+    if (!filter_var($url, FILTER_VALIDATE_URL)) {
+        return 'Некорректная ссылка';
+    }
+    if (file_get_contents($url) === false) {
+        return 'Не удалось загрузить файл. Проверьте текущую ссылку или используйте другую';
+    }
+    return false;
+}
+
+/**
+ * @param $tags_field_name
+ * @return false|string
+ */
 function validate_tags($tags_field_name) {
     if (empty($_POST[$tags_field_name]) || (substr($_POST[$tags_field_name], 0, 1) === ' ' && empty(trim($_POST[$tags_field_name])))) {
         return 'Поле "Теги" должно содержать одно или больше слов';
@@ -498,6 +529,134 @@ function validate_tags($tags_field_name) {
     return false;
 }
 
+/**
+ * @param $photo_file
+ * @param $photo_link
+ * @return false|mixed|string
+ */
+function upload_photo_and_get_filename($photo_file, $photo_link) {
+    $file_name = '';
+    if (!empty($_FILES[$photo_file]['tmp_name'])) {
+        $file_name = $_FILES[$photo_file]['name'];
+        $file_path = __DIR__ . '/uploads/';
+        move_uploaded_file($_FILES[$photo_file]['tmp_name'], $file_path . $file_name);
+    }
+    if (!empty($_POST[$photo_link]) && empty($_FILES[$photo_file]['tmp_name'])) {
+        $img = file_get_contents($_POST[$photo_link]);
+        $file = sprintf('uploads/%s.jpg', substr($_POST[$photo_link], -13, 8));
+        $result = file_put_contents($file, $img, LOCK_EX);
+        $file_name = substr($file, 8);
+    }
+    return $file_name;
+}
+
+/**
+ * @param $tags
+ * @param $con
+ * @param $post_id
+ * @return bool
+ */
+function add_tags_to_new_post($tags, $con, $post_id) {
+    foreach ($tags as $tag) {
+        // count tags
+        $quantity = count(get_db("SELECT hashtag_title FROM hashtags"));
+        // add new tag
+        $sql_add_hashtags = "INSERT INTO hashtags (hashtag_title) VALUES ('$tag')";
+        $result_hashtags = mysqli_query($con, $sql_add_hashtags);
+        $hashtag_id = mysqli_insert_id($con);
+        // count again
+        $quantity_after_add = count(get_db("SELECT hashtag_title FROM hashtags"));
+        // if tag wasn't new
+        if ($quantity_after_add == $quantity) {
+            $sql_get_tag_id = "SELECT id FROM hashtags WHERE hashtag_title = '$tag'";
+            $array_get_tag_id = get_db($sql_get_tag_id);
+            $hashtag_id = intval($array_get_tag_id[0]['id']);
+        }
+        // connecting to created post
+        $sql_posts_hashtags = "INSERT INTO posts_hashtags (post_id, hashtag_id) VALUES ('$post_id', '$hashtag_id')";
+        $result_posts_hashtags = mysqli_query($con, $sql_posts_hashtags);
+    }
+
+    if (count(get_hashtags_for_post($post_id)) != 0) {
+        return true;
+    }
+    return false;
+}
+
+/**
+ * @param $rules
+ * @param $title
+ * @param $text
+ * @param $text_quote
+ * @param $quote_author
+ * @param $photo_link
+ * @param $photo_file
+ * @param $video_link
+ * @param $link
+ * @param $tags_field
+ * @param $content_type_id
+ * @return false|int|string
+ */
+function add_new_post($rules, $title, $text, $text_quote, $quote_author, $photo_link, $photo_file, $video_link, $link, $tags_field, $content_type_id) {
+    // date
+    $date = date_create('now'); //datetime object
+    $creation_date = date_format($date, 'Y-m-d H:i:s'); //string
+    // text
+    if (empty($_POST[$text])) {
+        $text = $text_quote;
+    }
+    // photo
+    $file_name = upload_photo_and_get_filename($photo_file, $photo_link);
+    // checking the existence of fields
+    foreach ($rules as $key => $value) {
+        if (empty($_POST[$key])) {
+            $_POST[$key] = NULL;
+        }
+    }
+    // add post
+    $con = require_once 'db.php';
+    $sql = "INSERT INTO posts (creation_date, title, text, quote_author, img, video, link, view_count, user_id, content_types_id)
+    VALUES ('$creation_date','$_POST[$title]', '$_POST[$text]', '$_POST[$quote_author]', '$file_name', '$_POST[$video_link]', '$_POST[$link]', 15, 1, $content_type_id)";
+    $result = mysqli_query($con, $sql);
+    $post_id = mysqli_insert_id($con);
+    // add tags to post
+    $tags = explode(' ', $_POST[$tags_field]);
+    $check_hashtags = add_tags_to_new_post($tags, $con, $post_id);
+
+    if (($result) && ($check_hashtags === true)) {
+        return $post_id;//new post id
+    }
+    return false;
+}
+
+/**
+ * @param $file_name
+ * @return string
+ */
+function get_photo_file_path($file_name) {
+    $check_file = file_exists('img/' . $file_name);
+    if ($check_file === false) {
+        return '../uploads/' . $file_name;
+    }
+    return '../img/' . $file_name;
+}
+
+/**
+ * @param $field
+ * @return string|void
+ */
+function get_form_field_status($field) {
+    if (!empty($field)) {
+        return 'form__input-section--error';
+    }
+    return false;
+}
+
+/**
+ * @param $errors
+ * @param $key
+ * @return false|mixed
+ */
 function get_error_info($errors, $key) {
     if (isset($errors[$key])) {
         $error = $errors[$key];
@@ -505,75 +664,6 @@ function get_error_info($errors, $key) {
     }
     return false;
 }
-
-/*function validate_file_type($file_field_name) {
-    if (isset($_FILES[$file_field_name])) {
-        $finfo = finfo_open(FILEINFO_MIME_TYPE);
-        $file_name = $_FILES[$file_field_name]['tmp_name'];
-
-        $file_type = finfo_file($finfo, $file_name);
-
-        if ($file_type !== 'image/png') {
-            print("Загрузите картинку в формате Gif");
-        }
-    }
-}*/
-
-function add_new_post($rules, $title, $text, $text_quote, $quote_author, $photo_link, $video_link, $link, $tags_field, $content_type_id) {
-    $date = date_create('now'); //datetime object
-    $creation_date = date_format($date, 'Y-m-d H:i:s'); //string
-    if (empty($_POST[$text])) {
-        $text = $text_quote;
-    }
-    //photo check
-    //
-
-    //checking the existence of fields
-    foreach ($rules as $key => $value) {
-        if (empty($_POST[$key])) {
-            $_POST[$key] = NULL;
-        }
-    }
-    // add
-    $con = require_once 'db.php';
-    $sql = "INSERT INTO posts (creation_date, title, text, quote_author, img, video, link, view_count, user_id, content_types_id)
-    VALUES ('$creation_date','$_POST[$title]', '$_POST[$text]', '$_POST[$quote_author]', '$_POST[$photo_link]', '$_POST[$video_link]', '$_POST[$link]', 15, 1, $content_type_id)";
-    $result = mysqli_query($con, $sql);
-    $post_id = mysqli_insert_id($con);
-
-    //add tags
-    $tags = explode(' ', $_POST[$tags_field]);
-    foreach ($tags as $tag) {
-        $sql_hashtags = "INSERT INTO hashtags (hashtag_title) VALUES ('$tag')";
-        $result_hashtags = mysqli_query($con, $sql_hashtags);
-        $hashtag_id = mysqli_insert_id($con);
-        $sql_posts_hashtags = "INSERT INTO posts_hashtags (post_id, hashtag_id) VALUES ('$post_id', '$hashtag_id')";
-        $result_posts_hashtags = mysqli_query($con, $sql_posts_hashtags);
-    }
-    $new_post_hashtags = get_hashtags_for_post($post_id);
-
-    if (($result) && (count($new_post_hashtags) != 0)) {
-        return $post_id;//new post id
-    }
-    return false;
-}
-
-/*function add_tags_to_new_post($tags_field, $post_id) {
-    $con = require_once 'db.php';
-    $tags = explode(' ', $_POST[$tags_field]);
-    foreach ($tags as $tag) {
-        $sql_hashtags = "INSERT INTO hashtags (hashtag_title) VALUES ('$tag')";
-        $result_hashtags = mysqli_query($con, $sql_hashtags);
-        $id = mysqli_insert_id($con);
-        $sql_posts_hashtags = "INSERT INTO posts_hashtags (post_id, hashtag_id) VALUES ('$post_id', '$id')";
-        $result_posts_hashtags = mysqli_query($con, $sql_posts_hashtags);
-    }
-    $new_post_hashtags = get_hashtags_for_post($post_id);
-    if (count($new_post_hashtags) != 0) {
-        return true;
-    }
-    return false;
-}*/
 
 /**
  * @param $data
