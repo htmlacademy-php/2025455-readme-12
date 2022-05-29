@@ -39,7 +39,7 @@ function text_cut($text, $quantity = 300) {
  * @param mixed $date_str
  * @return array Отформатированная дата, относительная дата
  */
-function post_date($date_str, $back) {
+function post_date($date_str, $back): array {
 
     $date = date_create($date_str); //datetime object
     $date_format_str = date_format($date, 'Y-m-d H:i'); //string
@@ -82,7 +82,7 @@ function post_date($date_str, $back) {
  * @param $sql_query
  * @return array Ассоциативный массив с данными из БД
  */
-function get_db($sql_query) {
+function get_db($sql_query): array {
     //$result = $sql_query->get_result();
     $result = mysqli_query(require 'db.php', $sql_query);
     $array = mysqli_fetch_all($result, MYSQLI_ASSOC);
@@ -105,7 +105,7 @@ function get_db($sql_query) {
  * @param int $filter_id
  * @return array Массив типов контента из базы данных
  */
-function get_posts_from_db($sorting, $sort_type, $limit, $filter_id) {
+function get_posts_from_db($sorting, $sort_type, $limit, $filter_id): array {
     if ($filter_id != NULL) {
     $query = sprintf("SELECT posts.id, users.login, users.avatar, content_types.type_title, content_types.alias, creation_date, posts.title, text, quote_author, img, video, link, view_count, user_id, content_types_id
 FROM posts
@@ -130,7 +130,7 @@ ORDER BY %s %s LIMIT %d", $sorting, $sort_type, $limit);
  * Функция для показа типов контента
  * @return array Массив типов контента из базы данных
  */
-function get_types_from_db() {
+function get_types_from_db(): array {
     $query = "SELECT type_title, class_icon, alias FROM content_types";
     $array = get_db($query);
 
@@ -141,7 +141,7 @@ function get_types_from_db() {
  * @param int $filter_id
  * @return array Данные о посте
  */
-function get_post_details_from_db($filter_id) {
+function get_post_details_from_db($filter_id): array {
     $query = sprintf("SELECT posts.id, content_types.alias, posts.title, text, quote_author, img, video, link, view_count, user_id, content_types_id
 FROM posts
 INNER JOIN content_types ON posts.content_types_id = content_types.id
@@ -155,7 +155,7 @@ WHERE posts.id = %d",  $filter_id);
  * @param $filter_id
  * @return int
  */
-function get_likes_quantity($filter_id) {
+function get_likes_quantity($filter_id): int {
     $query = sprintf("SELECT l.id, l.user_id, l.post_id
 FROM likes l
 INNER JOIN posts p ON l.post_id = p.id
@@ -169,7 +169,7 @@ WHERE p.id = %d", $filter_id);
  * @param $filter_id
  * @return array
  */
-function get_hashtags_for_post($filter_id) {
+function get_hashtags_for_post($filter_id): array {
     $query = sprintf("SELECT h.hashtag_title
 FROM posts p
 INNER JOIN posts_hashtags ph ON p.id = ph.post_id
@@ -184,7 +184,7 @@ WHERE p.id = %d", $filter_id);
  * @param $filter_id
  * @return array
  */
-function get_comments_for_post_details($filter_id) {
+function get_comments_for_post_details($filter_id): array {
     $query = sprintf("SELECT p.id, u.login, u.avatar, c.comment_creation_date, content, c.user_id, post_id
 FROM comments c
 INNER JOIN users u ON c.user_id = u.id
@@ -199,7 +199,7 @@ WHERE p.id = %d", $filter_id);
  * @param $filter_id
  * @return array
  */
-function get_user_for_post_details($filter_id) {
+function get_user_for_post_details($filter_id): array {
     $query = sprintf("SELECT p.id, u.id, u.login, u.avatar, u.registration_date
 FROM posts p
 INNER JOIN users u ON p.user_id = u.id
@@ -213,7 +213,7 @@ WHERE p.id = %d", $filter_id);
  * @param $filter_id
  * @return int
  */
-function get_subscribers_number($filter_id) {
+function get_subscribers_number($filter_id): int {
     $query = sprintf("SELECT s.id, s.author_user_id, s.subscribed_user_id
 FROM subscriptions s
 INNER JOIN users u ON s.subscribed_user_id = u.id
@@ -227,7 +227,7 @@ WHERE u.id = %d", $filter_id);
  * @param $filter_id
  * @return int
  */
-function get_publications_number($filter_id) {
+function get_publications_number($filter_id): int {
     $query = sprintf("SELECT p.id, p.user_id, u.id
 FROM posts p
 INNER JOIN users u ON p.user_id = u.id
@@ -240,7 +240,7 @@ WHERE u.id = %d", $filter_id);
 /**
  * @return int
  */
-function get_posts_quantity() {
+function get_posts_quantity(): int {
     $query = "SELECT id FROM posts";
     $array = get_db($query);
     $posts_quantity = count($array);
@@ -252,7 +252,7 @@ function get_posts_quantity() {
  * @param string $alias
  * @return string Класс оформления для поста
  */
-function get_post_css_class($alias) {
+function get_post_css_class($alias): string {
 
     switch ($alias !== '') {
         case ($alias === 'photo'):
@@ -272,9 +272,9 @@ function get_post_css_class($alias) {
 
 /**
  * @param string $type_alias
- * @return string[] CSS класс для кнопки
+ * @return string CSS класс для кнопки
  */
-function get_button_css_class($type_alias) {
+function get_button_css_class($type_alias): string {
     switch ($type_alias !== '') {
         case ($type_alias === 'photo'):
             $filters__button = 'filters__button--photo';
@@ -298,9 +298,9 @@ function get_button_css_class($type_alias) {
 
 /**
  * @param string $type_alias
- * @return string[] значение для xlink
+ * @return string значение для xlink
  */
-function get_button_icon_url($type_alias) {
+function get_button_icon_url($type_alias): string {
     switch ($type_alias !== '') {
         case ($type_alias === 'photo'):
             $icon_url = '#icon-filter-photo';
@@ -326,7 +326,7 @@ function get_button_icon_url($type_alias) {
  * @param string $type_alias
  * @return int параметр id для этого типа контента
  */
-function get_id_for_content_type($type_alias) {
+function get_id_for_content_type($type_alias): int {
     switch ($type_alias !== '') {
         case ($type_alias === 'photo'):
             $id = 1;
@@ -353,7 +353,7 @@ function get_id_for_content_type($type_alias) {
  * @param int $type_id
  * @return string CSS класс для кнопки
  */
-function is_button_active($url_id, $type_id) {
+function is_button_active($url_id, $type_id): string {
     $button_active = '';
     if ($url_id == $type_id) {
         $button_active = 'filters__button--active';
@@ -365,7 +365,7 @@ function is_button_active($url_id, $type_id) {
  * @param $type_id
  * @return string ссылка для кнопок типа контента
  */
-function get_link_for_type_button($type_id) {
+function get_link_for_type_button($type_id): string {
     $link = sprintf('index.php?contype_id=%d',$type_id);
     return $link;
 }
@@ -374,7 +374,7 @@ function get_link_for_type_button($type_id) {
  * @param $post_id
  * @return string
  */
-function get_link_for_post($post_id) {
+function get_link_for_post($post_id): string {
     $link = sprintf('post.php?id=%d',$post_id);
     return $link;
 }
@@ -383,8 +383,8 @@ function get_link_for_post($post_id) {
  * @param $alias
  * @return string
  */
-function get_filename($alias) {
-    $filename = sprintf('post-%s.php', $alias);
+function get_filename($alias): string {
+    $filename = sprintf('post/%s.php', $alias);
     return $filename;
 }
 
@@ -392,15 +392,16 @@ function get_filename($alias) {
  * @param $type_id
  * @return string ссылка для кнопок типа контента в форме публикации поста
  */
-function get_link_for_form_type_button($type_id) {
+function get_link_for_form_type_button($type_id): string {
     $link = sprintf('add.php?pubtype_id=%d',$type_id);
     return $link;
 }
 
 /**
  * @param $id
+ * @return string
  */
-function get_filename_for_form_content($id) {
+function get_filename_for_form_content($id): string {
     $alias = '';
     switch (true) {
         case ($id == 1):
@@ -420,7 +421,7 @@ function get_filename_for_form_content($id) {
             break;
     }
 
-    $filename = sprintf('add_post_%s_type.php', $alias);
+    $filename = sprintf('add_post/%s_type.php', $alias);
 
     return $filename;
 }
@@ -430,7 +431,7 @@ function get_filename_for_form_content($id) {
  * @param $new_post_id
  * @return string
  */
-function get_link_after_form_submit($pubtype_id, $new_post_id){
+function get_link_after_form_submit($pubtype_id, $new_post_id): string {
     $link = sprintf("Location: ../add.php?pubtype_id=%d&success=true&new_post_id=%d", $pubtype_id, $new_post_id);
 
     return $link;
@@ -440,7 +441,7 @@ function get_link_after_form_submit($pubtype_id, $new_post_id){
  * @param $new_post_id
  * @return string ссылка для нового поста
  */
-function get_link_for_new_post($new_post_id) {
+function get_link_for_new_post($new_post_id): string {
     $link = sprintf('../post.php?id=%d',$new_post_id);
     return $link;
 }
@@ -455,7 +456,8 @@ function getPostVal($name) {
 
 /**
  * @param $name
- * @return string|void
+ * @param $ru_name
+ * @return string|bool
  */
 function validate_filled($name, $ru_name) {
     if (empty($_POST[$name])) {
@@ -464,6 +466,13 @@ function validate_filled($name, $ru_name) {
     return false;
 }
 
+/**
+ * @param $field_name
+ * @param $file_field
+ * @param $ru_name_first
+ * @param $ru_name_second
+ * @return false|string
+ */
 function validate_filled_string_and_file($field_name, $file_field,  $ru_name_first, $ru_name_second) {
     if (empty($_POST[$field_name]) && empty($_FILES[$file_field]['tmp_name'])) {
         return sprintf("Хотя бы одно из полей: %s, %s - должно быть заполнено", $ru_name_first, $ru_name_second);
@@ -473,7 +482,7 @@ function validate_filled_string_and_file($field_name, $file_field,  $ru_name_fir
 
 /**
  * @param $url
- * @return string|void
+ * @return false|string
  */
 function validate_url_format($url) {
     if (!filter_var($url, FILTER_VALIDATE_URL)) {
@@ -530,23 +539,28 @@ function validate_tags($tags_field_name) {
 }
 
 /**
- * @param $photo_file
- * @param $photo_link
- * @return false|mixed|string
+ * @param $tmp_name
+ * @param $name
+ * @return mixed
  */
-function upload_photo_and_get_filename($photo_file, $photo_link) {
-    $file_name = '';
-    if (!empty($_FILES[$photo_file]['tmp_name'])) {
-        $file_name = $_FILES[$photo_file]['name'];
-        $file_path = __DIR__ . '/uploads/';
-        move_uploaded_file($_FILES[$photo_file]['tmp_name'], $file_path . $file_name);
-    }
-    if (!empty($_POST[$photo_link]) && empty($_FILES[$photo_file]['tmp_name'])) {
-        $img = file_get_contents($_POST[$photo_link]);
-        $file = sprintf('uploads/%s.jpg', substr($_POST[$photo_link], -13, 8));
-        $result = file_put_contents($file, $img, LOCK_EX);
-        $file_name = substr($file, 8);
-    }
+function upload_photo_file($tmp_name, $name) {
+    $file_name = $name;
+    $file_path = __DIR__ . '/uploads/';
+    move_uploaded_file($tmp_name, $file_path . $file_name);
+
+    return $file_name;
+}
+
+/**
+ * @param $photo_link
+ * @return false|string
+ */
+function upload_by_photo_link($photo_link) {
+    $img = file_get_contents($photo_link);
+    $file = sprintf('uploads/%s.jpg', substr($photo_link, -13, 8));
+    file_put_contents($file, $img, LOCK_EX);
+    $file_name = substr($file, 8);
+
     return $file_name;
 }
 
@@ -562,7 +576,7 @@ function add_tags_to_new_post($tags, $con, $post_id) {
         $quantity = count(get_db("SELECT hashtag_title FROM hashtags"));
         // add new tag
         $sql_add_hashtags = "INSERT INTO hashtags (hashtag_title) VALUES ('$tag')";
-        $result_hashtags = mysqli_query($con, $sql_add_hashtags);
+        mysqli_query($con, $sql_add_hashtags);
         $hashtag_id = mysqli_insert_id($con);
         // count again
         $quantity_after_add = count(get_db("SELECT hashtag_title FROM hashtags"));
@@ -574,7 +588,7 @@ function add_tags_to_new_post($tags, $con, $post_id) {
         }
         // connecting to created post
         $sql_posts_hashtags = "INSERT INTO posts_hashtags (post_id, hashtag_id) VALUES ('$post_id', '$hashtag_id')";
-        $result_posts_hashtags = mysqli_query($con, $sql_posts_hashtags);
+        mysqli_query($con, $sql_posts_hashtags);
     }
 
     if (count(get_hashtags_for_post($post_id)) != 0) {
@@ -585,42 +599,38 @@ function add_tags_to_new_post($tags, $con, $post_id) {
 
 /**
  * @param $rules
- * @param $title
- * @param $text
- * @param $text_quote
- * @param $quote_author
- * @param $photo_link
- * @param $photo_file
- * @param $video_link
- * @param $link
- * @param $tags_field
  * @param $content_type_id
  * @return false|int|string
  */
-function add_new_post($rules, $title, $text, $text_quote, $quote_author, $photo_link, $photo_file, $video_link, $link, $tags_field, $content_type_id) {
+function add_new_post($rules, $content_type_id) {
     // date
     $date = date_create('now'); //datetime object
     $creation_date = date_format($date, 'Y-m-d H:i:s'); //string
     // text
-    if (empty($_POST[$text])) {
-        $text = $text_quote;
+    if (empty($_POST['post-text'])) {
+        $_POST['post-text'] = $_POST['post-quote'];
     }
     // photo
-    $file_name = upload_photo_and_get_filename($photo_file, $photo_link);
+    if (empty($_POST['userpic-file-photo'])) {
+        $file_name = upload_by_photo_link($_POST['photo-link']);
+    }
+    else {
+        $file_name = upload_photo_file($_FILES['userpic-file-photo']['tmp_name'], $_FILES['userpic-file-photo']['name']);
+    }
     // checking the existence of fields
     foreach ($rules as $key => $value) {
         if (empty($_POST[$key])) {
-            $_POST[$key] = NULL;
+            unset($_POST[$key]);
         }
     }
     // add post
     $con = require_once 'db.php';
-    $sql = "INSERT INTO posts (creation_date, title, text, quote_author, img, video, link, view_count, user_id, content_types_id)
-    VALUES ('$creation_date','$_POST[$title]', '$_POST[$text]', '$_POST[$quote_author]', '$file_name', '$_POST[$video_link]', '$_POST[$link]', 15, 1, $content_type_id)";
-    $result = mysqli_query($con, $sql);
+    $sql_new = sprintf("INSERT INTO posts (creation_date, title, text, quote_author, img, video, link, view_count, user_id, content_types_id)
+    VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%d', '%d')", $creation_date, $_POST['heading'], $_POST['post-text'], $_POST['quote-author'], $file_name, $_POST['video-link'], $_POST['post-link'], 15, 1, $content_type_id);
+    $result = mysqli_query($con, $sql_new);
     $post_id = mysqli_insert_id($con);
     // add tags to post
-    $tags = explode(' ', $_POST[$tags_field]);
+    $tags = explode(' ', $_POST['post-tags']);
     $check_hashtags = add_tags_to_new_post($tags, $con, $post_id);
 
     if (($result) && ($check_hashtags === true)) {
@@ -633,7 +643,7 @@ function add_new_post($rules, $title, $text, $text_quote, $quote_author, $photo_
  * @param $file_name
  * @return string
  */
-function get_photo_file_path($file_name) {
+function get_photo_file_path($file_name): string {
     $check_file = file_exists('img/' . $file_name);
     if ($check_file === false) {
         return '../uploads/' . $file_name;
@@ -641,16 +651,14 @@ function get_photo_file_path($file_name) {
     return '../img/' . $file_name;
 }
 
-/**
- * @param $field
- * @return string|void
- */
+/*
 function get_form_field_status($field) {
     if (!empty($field)) {
         return 'form__input-section--error';
     }
     return false;
 }
+*/
 
 /**
  * @param $errors

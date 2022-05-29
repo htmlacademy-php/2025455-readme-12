@@ -13,13 +13,13 @@
     <form class="adding-post__form form" action="../add.php?pubtype_id=1" method="post" enctype="multipart/form-data">
         <div class="form__text-inputs-wrapper">
             <div class="form__text-inputs">
-                <?=include_template('add_post_title.php', compact('errors'))?>
-                <?=include_template('add_post_photo_link.php', compact('errors'))?>
-                <?=include_template('add_post_tags.php', compact('errors'))?>
+                <?=include_template('add_post/title.php', compact('errors'))?>
+                <?=include_template('add_post/photo_link.php', compact('errors'))?>
+                <?=include_template('add_post/tags.php', compact('errors'))?>
             </div>
-            <?=include_template('add_post_invalid_block.php', compact('errors'))?>
+            <?=include_template('add_post/invalid_block.php', compact('errors'))?>
         </div>
-        <?=include_template('add_post_photo.php', compact('errors'))?>
-        <?=include_template('add_post_buttons.php',[])?>
+        <?=include_template('add_post/photo.php', compact('errors'))?>
+        <?=include_template('add_post/buttons.php',[])?>
     </form>
 </section>

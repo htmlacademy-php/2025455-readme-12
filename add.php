@@ -100,7 +100,7 @@ $errors = array_filter($errors);
 //Redirect/not
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (empty($errors)) {
-        $new_post_result = add_new_post($rules,'heading', 'post-text', 'post-quote', 'quote-author', 'photo-link', 'userpic-file-photo','video-link', 'post-link', 'post-tags', $pubtype_id);
+        $new_post_result = add_new_post($rules, $pubtype_id);
         if ($new_post_result !== false) {
             //3 ways to go
             header(get_link_after_form_submit($pubtype_id, $new_post_result));
@@ -111,7 +111,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 console_log($_FILES);
 if (isset($_GET['success'])) {
     $new_post_id = $_GET['new_post_id'];
-    $modal = include_template('add_modal.php', compact('new_post_id'));
+    $modal = include_template('add_post/modal.php', compact('new_post_id'));
 }
 
 //DB
@@ -124,7 +124,7 @@ $button = include_template('header_readme/close_button.php',[]);
 
 $form_content = include_template(get_filename_for_form_content($pubtype_id),['pubtype_id' => $pubtype_id, 'errors' => $errors]);
 
-$main_content = include_template('adding_post.php',['types' => $types, 'pubtype_id' => $pubtype_id, 'content' => $form_content]);
+$main_content = include_template('add_post/page.php',['types' => $types, 'pubtype_id' => $pubtype_id, 'content' => $form_content]);
 
 $page_content = include_template('layout.php',['title' => 'readme: добавление публикации', 'is_auth' => $is_auth, 'user_name' => $user_name, 'content' => $main_content, 'button' => $button, 'modal_adding' => $modal, 'js' => $js]);
 

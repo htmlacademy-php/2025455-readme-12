@@ -31,7 +31,7 @@ else {
 
     $post_content = include_template(get_filename($post_details[0]['alias']), ['post' => $post_details[0]]);
 
-    $main_content = include_template('post_page.php', ['content' => $post_content, 'post' => $post_details[0], 'likes_quantity' => $likes_quantity, 'comments' => $comments, 'hashtags' => $hashtags, 'user' => $user_details[0], 'subscribers_number' => $subscribers_number, 'publications_number' => $publications_number]);
+    $main_content = include_template('post/page.php', ['content' => $post_content, 'post' => $post_details[0], 'likes_quantity' => $likes_quantity, 'comments' => $comments, 'hashtags' => $hashtags, 'user' => $user_details[0], 'subscribers_number' => $subscribers_number, 'publications_number' => $publications_number]);
 
     $page_content = include_template('layout.php', ['title' => 'readme: публикация', 'content' => $main_content, 'is_auth' => $is_auth, 'user_name' => $user_name, 'button' => $button, 'modal_adding' => '', 'js' => $js]);
 }

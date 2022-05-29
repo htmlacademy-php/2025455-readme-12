@@ -12,7 +12,7 @@ require_once 'source.php';
 $contype_id = $_GET['contype_id'] ?? NULL;
 
 //Posts DB
-$posts = get_posts_from_db( 'view_count', 'DESC', 10, $contype_id);
+$posts = get_posts_from_db( 'view_count', 'DESC', 20, $contype_id);
 
 //Types DB
 $types = get_types_from_db();
