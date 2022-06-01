@@ -90,13 +90,6 @@ function get_db($sql_query): array {
     return($array);
 }
 
-/*function get_table_rows_number($sql_query) {
-    $array = get_db($sql_query);
-    $quantity = count($array);
-
-    return $quantity;
-}*/
-
 /**
  * Функция для показа постов
  * @param string $sorting
@@ -291,6 +284,8 @@ function get_button_css_class($type_alias): string {
         case ($type_alias === 'link'):
             $filters__button = 'filters__button--link';
             break;
+        default:
+            $filters__button = '';
     }
 
     return $filters__button;
@@ -317,6 +312,8 @@ function get_button_icon_url($type_alias): string {
         case ($type_alias === 'link'):
             $icon_url = '#icon-filter-link';
             break;
+        default:
+            $icon_url = '';
     }
 
     return $icon_url;
@@ -343,6 +340,8 @@ function get_id_for_content_type($type_alias): int {
         case ($type_alias === 'link'):
             $id = 5;
             break;
+        default:
+            $id = 0;
     }
 
     return $id;
@@ -366,8 +365,7 @@ function is_button_active($url_id, $type_id): string {
  * @return string ссылка для кнопок типа контента
  */
 function get_link_for_type_button($type_id): string {
-    $link = sprintf('index.php?contype_id=%d',$type_id);
-    return $link;
+    return sprintf('index.php?content_type_id=%d',$type_id);
 }
 
 /**
@@ -375,8 +373,7 @@ function get_link_for_type_button($type_id): string {
  * @return string
  */
 function get_link_for_post($post_id): string {
-    $link = sprintf('post.php?id=%d',$post_id);
-    return $link;
+    return sprintf('post.php?id=%d',$post_id);
 }
 
 /**
@@ -384,8 +381,7 @@ function get_link_for_post($post_id): string {
  * @return string
  */
 function get_filename($alias): string {
-    $filename = sprintf('post/%s.php', $alias);
-    return $filename;
+    return sprintf('post/%s.php', $alias);
 }
 
 /**
@@ -393,8 +389,7 @@ function get_filename($alias): string {
  * @return string ссылка для кнопок типа контента в форме публикации поста
  */
 function get_link_for_form_type_button($type_id): string {
-    $link = sprintf('add.php?pubtype_id=%d',$type_id);
-    return $link;
+    return sprintf('add.php?publication_type_id=%d',$type_id);
 }
 
 /**
@@ -421,20 +416,16 @@ function get_filename_for_form_content($id): string {
             break;
     }
 
-    $filename = sprintf('add_post/%s_type.php', $alias);
-
-    return $filename;
+    return sprintf('add_post/%s_type.php', $alias);
 }
 
 /**
- * @param $pubtype_id
+ * @param $publication_type_id
  * @param $new_post_id
  * @return string
  */
-function get_link_after_form_submit($pubtype_id, $new_post_id): string {
-    $link = sprintf("Location: ../add.php?pubtype_id=%d&success=true&new_post_id=%d", $pubtype_id, $new_post_id);
-
-    return $link;
+function get_link_after_form_submit($publication_type_id, $new_post_id): string {
+    return sprintf("Location: ../add.php?publication_type_id=%d&success=true&new_post_id=%d", $publication_type_id, $new_post_id);
 }
 
 /**
@@ -442,15 +433,14 @@ function get_link_after_form_submit($pubtype_id, $new_post_id): string {
  * @return string ссылка для нового поста
  */
 function get_link_for_new_post($new_post_id): string {
-    $link = sprintf('../post.php?id=%d',$new_post_id);
-    return $link;
+    return sprintf('../post.php?id=%d',$new_post_id);
 }
 
 /**
  * @param $name
  * @return mixed|string
  */
-function getPostVal($name) {
+function get_post_val($name) {
     return $_POST[$name] ?? "";
 }
 
@@ -497,10 +487,10 @@ function validate_url_format($url) {
  */
 function validate_file_type($file_field_name) {
     if (isset($_FILES[$file_field_name])) {
-        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $file_info = finfo_open(FILEINFO_MIME_TYPE);
         $file_name = $_FILES[$file_field_name]['tmp_name'];
 
-        $file_type = finfo_file($finfo, $file_name);
+        $file_type = finfo_file($file_info, $file_name);
 
         if (($file_type !== 'image/png') && ($file_type !== 'image/jpeg') && ($file_type !== 'image/gif')) {
             return 'Загрузите картинку в формате gif/png/jpeg';
@@ -559,24 +549,25 @@ function upload_by_photo_link($photo_link) {
     $img = file_get_contents($photo_link);
     $file = sprintf('uploads/%s.jpg', substr($photo_link, -13, 8));
     file_put_contents($file, $img, LOCK_EX);
-    $file_name = substr($file, 8);
 
-    return $file_name;
+    return substr($file, 8);
 }
 
 /**
  * @param $tags
  * @param $con
  * @param $post_id
- * @return bool
+ * @return boolean
  */
-function add_tags_to_new_post($tags, $con, $post_id) {
+function add_tags_to_new_post($tags, $con, $post_id): bool {
     foreach ($tags as $tag) {
         // count tags
         $quantity = count(get_db("SELECT hashtag_title FROM hashtags"));
         // add new tag
-        $sql_add_hashtags = "INSERT INTO hashtags (hashtag_title) VALUES ('$tag')";
-        mysqli_query($con, $sql_add_hashtags);
+        $sql_add_hashtags = "INSERT INTO hashtags (hashtag_title) VALUES (?)";
+        $stmt = mysqli_prepare($con, $sql_add_hashtags);
+        mysqli_stmt_bind_param($stmt, 's', $tag);
+        mysqli_stmt_execute($stmt);
         $hashtag_id = mysqli_insert_id($con);
         // count again
         $quantity_after_add = count(get_db("SELECT hashtag_title FROM hashtags"));
@@ -587,8 +578,10 @@ function add_tags_to_new_post($tags, $con, $post_id) {
             $hashtag_id = intval($array_get_tag_id[0]['id']);
         }
         // connecting to created post
-        $sql_posts_hashtags = "INSERT INTO posts_hashtags (post_id, hashtag_id) VALUES ('$post_id', '$hashtag_id')";
-        mysqli_query($con, $sql_posts_hashtags);
+        $sql_posts_hashtags = "INSERT INTO posts_hashtags (post_id, hashtag_id) VALUES (?, ?)";
+        $stmt = mysqli_prepare($con, $sql_posts_hashtags);
+        mysqli_stmt_bind_param($stmt, 'ii', $post_id, $hashtag_id);
+        mysqli_stmt_execute($stmt);
     }
 
     if (count(get_hashtags_for_post($post_id)) != 0) {
@@ -611,7 +604,8 @@ function add_new_post($rules, $content_type_id) {
         $_POST['post-text'] = $_POST['post-quote'];
     }
     // photo
-    if (empty($_POST['userpic-file-photo'])) {
+    $file_name = '';
+    if (empty($_POST['userpic-file-photo']) && isset($_POST['photo-link'])) {
         $file_name = upload_by_photo_link($_POST['photo-link']);
     }
     else {
@@ -625,15 +619,27 @@ function add_new_post($rules, $content_type_id) {
     }
     // add post
     $con = require_once 'db.php';
-    $sql_new = sprintf("INSERT INTO posts (creation_date, title, text, quote_author, img, video, link, view_count, user_id, content_types_id)
-    VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%d', '%d')", $creation_date, $_POST['heading'], $_POST['post-text'], $_POST['quote-author'], $file_name, $_POST['video-link'], $_POST['post-link'], 15, 1, $content_type_id);
-    $result = mysqli_query($con, $sql_new);
+    //variables for stmt
+    $heading = $_POST['heading'];
+    $post_text = $_POST['post-text'];
+    $quote_author = $_POST['quote-author'];
+    $video_link = $_POST['video-link'];
+    $post_link = $_POST['post-link'];
+    $view_count = 15;
+    $user_id = 1;
+
+    $sql = "INSERT INTO posts (creation_date, title, text, quote_author, img, video, link, view_count, user_id, content_types_id)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    $stmt = mysqli_prepare($con, $sql);
+    mysqli_stmt_bind_param($stmt, 'sssssssiii', $creation_date, $heading, $post_text, $quote_author, $file_name, $video_link, $post_link, $view_count, $user_id, $content_type_id);
+    mysqli_stmt_execute($stmt);
+    $stmt_result = mysqli_stmt_get_result($stmt);
     $post_id = mysqli_insert_id($con);
     // add tags to post
     $tags = explode(' ', $_POST['post-tags']);
     $check_hashtags = add_tags_to_new_post($tags, $con, $post_id);
 
-    if (($result) && ($check_hashtags === true)) {
+    if (!($stmt_result) && ($check_hashtags === true)) {
         return $post_id;//new post id
     }
     return false;
@@ -651,15 +657,6 @@ function get_photo_file_path($file_name): string {
     return '../img/' . $file_name;
 }
 
-/*
-function get_form_field_status($field) {
-    if (!empty($field)) {
-        return 'form__input-section--error';
-    }
-    return false;
-}
-*/
-
 /**
  * @param $errors
  * @param $key
@@ -667,8 +664,7 @@ function get_form_field_status($field) {
  */
 function get_error_info($errors, $key) {
     if (isset($errors[$key])) {
-        $error = $errors[$key];
-        return $error;
+        return $errors[$key];
     }
     return false;
 }

@@ -11,7 +11,7 @@ require_once 'source.php';
 $modal = '';
 
 //Параметры запроса
-$pubtype_id = $_GET['pubtype_id'] ?? NULL;
+$publication_type_id = $_GET['publication_type_id'] ?? NULL;
 
 //Раздел валидации
 
@@ -100,10 +100,10 @@ $errors = array_filter($errors);
 //Redirect/not
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (empty($errors)) {
-        $new_post_result = add_new_post($rules, $pubtype_id);
+        $new_post_result = add_new_post($rules, $publication_type_id);
         if ($new_post_result !== false) {
             //3 ways to go
-            header(get_link_after_form_submit($pubtype_id, $new_post_result));
+            header(get_link_after_form_submit($publication_type_id, $new_post_result));
         }
     }
 }
@@ -122,9 +122,9 @@ $js = '';
 
 $button = include_template('header_readme/close_button.php',[]);
 
-$form_content = include_template(get_filename_for_form_content($pubtype_id),['pubtype_id' => $pubtype_id, 'errors' => $errors]);
+$form_content = include_template(get_filename_for_form_content($publication_type_id),['publication_type_id' => $publication_type_id, 'errors' => $errors]);
 
-$main_content = include_template('add_post/page.php',['types' => $types, 'pubtype_id' => $pubtype_id, 'content' => $form_content]);
+$main_content = include_template('add_post/page.php',['types' => $types, 'publication_type_id' => $publication_type_id, 'content' => $form_content]);
 
 $page_content = include_template('layout.php',['title' => 'readme: добавление публикации', 'is_auth' => $is_auth, 'user_name' => $user_name, 'content' => $main_content, 'button' => $button, 'modal_adding' => $modal, 'js' => $js]);
 

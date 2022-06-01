@@ -8,7 +8,7 @@
             class="form__input-required">*</span></label>
     <div class="form__input-section <?=(isset($errors['heading'])) ? 'form__input-section--error' : '' ?>">
         <input class="adding-post__input form__input" id="photo-heading" type="text" name="heading"
-               placeholder="Введите заголовок" value="<?= getPostVal('heading') ?>">
+               placeholder="Введите заголовок" value="<?= get_post_val('heading') ?>">
         <button class="form__error-button button" type="button">!<span
                 class="visually-hidden">Информация об ошибке</span></button>
         <?php $error = get_error_info($errors, 'heading')?>

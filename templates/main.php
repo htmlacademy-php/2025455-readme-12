@@ -2,7 +2,7 @@
 /**
  * @var array $posts
  * @var array $types
- * @var int $contype_id
+ * @var int $content_type_id
  */
 ?>
 <div class="container">
@@ -43,14 +43,14 @@
                 <b class="popular__filters-caption filters__caption">Тип контента:</b>
                 <ul class="popular__filters-list filters__list">
                     <li class="popular__filters-item popular__filters-item--all filters__item filters__item--all">
-                        <a class="filters__button filters__button--ellipse filters__button--all <?=($contype_id == '') ? 'filters__button--active' : ''?>" href="index.php">
+                        <a class="filters__button filters__button--ellipse filters__button--all <?=($content_type_id == '') ? 'filters__button--active' : ''?>" href="../index.php">
                             <span>Все</span>
                         </a>
                     </li>
                     <?php foreach ($types as $type): ?>
                     <?php $id = get_id_for_content_type($type['alias'])?>
                     <li class="popular__filters-item filters__item">
-                        <a class="filters__button <?=get_button_css_class($type['alias'])?> button <?=is_button_active($contype_id, $id)?>" href=<?=get_link_for_type_button($id)?>>
+                        <a class="filters__button <?=get_button_css_class($type['alias'])?> button <?=is_button_active($content_type_id, $id)?>" href=<?=get_link_for_type_button($id)?>>
                             <span class="visually-hidden"><?=$type['type_title']?></span>
                             <svg class="filters__icon" width="22" height="18">
                                 <use xlink:href="<?=get_button_icon_url($type['alias'])?>"></use>

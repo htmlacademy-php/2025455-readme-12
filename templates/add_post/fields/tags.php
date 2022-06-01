@@ -8,7 +8,7 @@
             class="form__input-required">*</span></label>
     <div class="form__input-section <?=(isset($errors['post-tags'])) ? 'form__input-section--error' : '' ?>">
         <input class="adding-post__input form__input" id="tags" type="text" name="post-tags" placeholder="Введите теги"
-               value="<?= getPostVal('post-tags') ?>">
+               value="<?= get_post_val('post-tags') ?>">
         <?=include_template('add_post/error_info.php', compact('errors'))?>
     </div>
 </div>
