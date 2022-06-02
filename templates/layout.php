@@ -4,6 +4,9 @@
  * @var bool $is_auth
  * @var string $user_name
  * @var string $content
+ * @var $button
+ * @var $modal_adding
+ * @var $js
  */
 ?>
 
@@ -14,7 +17,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?=$title;?></title>
-    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="../css/main.css">
 </head>
 <body class="page">
 <div style="display: none">
@@ -24,8 +27,8 @@
 <header class="header">
     <div class="header__wrapper container">
         <div class="header__logo-wrapper">
-            <a class="header__logo-link" href="/main.html">
-                <img class="header__logo" src="/img/logo.svg" alt="Логотип readme" width="128" height="24">
+            <a class="header__logo-link" href="../main.html">
+                <img class="header__logo" src="../img/logo.svg" alt="Логотип readme" width="128" height="24">
             </a>
             <p class="header__topic">
                 micro blogging
@@ -112,7 +115,7 @@
                             </div>
                         </li>
                         <li>
-                            <a class="header__post-button button button--transparent" href="/adding-post.html">Пост</a>
+                            <?=$button?>
                         </li>
                     </ul>
                 </nav>
@@ -122,7 +125,8 @@
 </header>
 
 <section class="page__main page__main--popular">
-    <?=$content;?>
+    <?=$content?>
+
 </section>
 
 <footer class="footer">
@@ -179,8 +183,11 @@
         </div>
     </div>
 </footer>
+
+<?=$modal_adding?>
+
 <script src="/libs/dropzone.js"></script>
-<script src="/js/dropzone-settings.js"></script>
+<?=$js?><!--!!!!!-->
 <script src="/js/main.js"></script>
 </body>
 </html>

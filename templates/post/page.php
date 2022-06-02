@@ -56,7 +56,7 @@
                     <div class="comments">
                         <form class="comments__form form" action="#" method="post">
                             <div class="comments__my-avatar">
-                                <img class="comments__picture" src="../img/userpic-medium.jpg" alt="Аватар пользователя">
+                                <img class="comments__picture" src="../../img/userpic-medium.jpg" alt="Аватар пользователя">
                             </div>
                             <div class="form__input-section form__input-section--error">
                                 <textarea class="comments__textarea form__textarea form__input" placeholder="Ваш комментарий"></textarea>

@@ -3,7 +3,7 @@ USE `2025455-readme-12`;
 /*запросы для добавления информации в БД*/
 /*список типов контента для поста*/
 INSERT INTO content_types (type_title, class_icon, alias)
-VALUES ('Картинка','photo','photo'),('Видео','video','video'),('Текст','text','text'),('Цитата','quote','quote'),('Ссылка','link','link');
+VALUES ('Фото','photo','photo'),('Видео','video','video'),('Текст','text','text'),('Цитата','quote','quote'),('Ссылка','link','link');
 
 /*новые пользователи*/
 INSERT INTO users (registration_date, email, login, password, avatar)
